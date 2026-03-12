@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自动组卷系统</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📝</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-file-alt"></i>
+                <h1>自动组卷系统</h1>
+                <span class="version">v2.0</span>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="header-username">加载中...</div>
+                    <div class="user-role" id="header-role"></div>
+                </div>
+               <button id="user-manage-btn" class="btn btn-secondary" title="用户管理" style="display: none;">
+                    <i class="fas fa-users-cog"></i> 用户管理
+                </button>
+                <button id="logout-btn-header" class="btn btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i> 登出
+                </button>                               
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <!-- 左侧面板 -->
+            <div class="left-panel">
+                <!-- 试卷设置 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-cog"></i> 试卷设置</h2>
+                       <!-- <div class="card-badge">基础设置</div> -->
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="subject-select"><i class="fas fa-book"></i> 选择课程或科目</label>
+                            <select id="subject-select" class="form-control">
+                                <option value="">-- 请选择课程或科目 --</option>
+                                <!-- 科目选项由JavaScript动态加载 -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="paper-title"><i class="fas fa-heading"></i> 试卷标题</label>
+                            <input type="text" id="paper-title" class="form-control" placeholder="请先选择课程或科目" value="" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="paper-count"><i class="fas fa-copy"></i> 随机组卷套数</label>
+                            <input type="number" id="paper-count" class="form-control" min="1" max="10" value="1" disabled>
+                            <div class="form-hint"> <i class="fas fa-info-circle"></i>如果组2套卷，则代表A/B卷，两卷题目不重复</div>
+                        </div>
+                                                
+                       <!-- 试卷设置卡片中的模板选择部分 -->
+                        <div class="form-group template-group">
+                            <div class="template-header">
+                                <label for="template-select"><i class="fas fa-layer-group"></i> 选择组卷模板（默认无模板组卷）</label>
+                                <button id="manage-templates-btn" class="btn btn-small btn-secondary template-manage-btn" style="display: none;" title="管理模板">
+                                    <i class="fas fa-cog"></i> 管理模板
+                                </button>
+                            </div>
+                            <select id="template-select" class="form-control">
+                                <option value="">-- 请选择模板 --</option>
+                                <!-- 模板选项由JavaScript动态加载 -->
+                            </select>
+                            <div class="form-hint">
+                                <i class="fas fa-info-circle"></i> 
+                                选择模板后将自动应用其试卷结构和题目选择
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 试卷结构 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-layer-group"></i> 试卷结构</h2>
+                        <div class="total-score-header">
+                            <span>当前总分:</span>
+                            <span id="current-total" >0</span>
+                            <span>分</span>
+                        </div>
+                        <div class="card-badge" id="structure-count">0种题型</div>
+                    </div>
+                    <div class="card-body">
+                        <div id="paper-structure" class="paper-structure">
+                            <div class="empty-state">
+                                <i class="fas fa-clipboard-list"></i>
+                                <p>暂无题型</p>
+                                <p class="empty-hint">请从右侧题库选择题目</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>              
+            </div>
+            
+            <!-- 右侧面板 -->
+            <div class="right-panel">
+                <div class="card full-height">
+                    <div class="card-header">
+                        <h2><i class="fas fa-book"></i> 从题库选题</h2>
+                        <div class="bank-info">
+                            <span class="bank-stat">
+                                <i class="fas fa-check-circle"></i>
+                                已选: <span id="selected-count">0</span>题
+                            </span>
+                            <span class="bank-stat">
+                                <i class="fas fa-database"></i>
+                                题库: <span id="total-questions">0</span>题
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="question-type-tabs">
+                            <div class="tabs-header">
+                                <div class="tabs-container">
+                                    <button class="tab-btn active" data-type="判断题">
+                                        <i class="fas fa-question-circle"></i>
+                                        判断题
+                                    </button>
+                                    <button class="tab-btn" data-type="选择题">
+                                        <i class="fas fa-check-circle"></i>
+                                        选择题
+                                    </button>
+                                    <button class="tab-btn" data-type="填空题">
+                                        <i class="fas fa-pencil-alt"></i>
+                                        填空题
+                                    </button>
+                                    <button class="tab-btn" data-type="计算题">
+                                        <i class="fas fa-calculator"></i>
+                                        计算题
+                                    </button>
+                                    <button class="tab-btn" data-type="解答题">
+                                        <i class="fas fa-comments"></i>
+                                        解答题
+                                    </button>
+                                    <button class="tab-btn" data-type="应用题">
+                                        <i class="fas fa-chart-line"></i>
+                                        应用题
+                                    </button>
+                                    <button class="tab-btn" data-type="证明题">
+                                        <i class="fas fa-gavel"></i>
+                                        证明题
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="tabs-content">
+                                <div id="bank-tree" class="bank-tree">
+                                    <div class="empty-state">
+                                        <i class="fas fa-database"></i>
+                                        <p>请先选择科目</p>
+                                        <p class="empty-hint">选择科目后，将显示对应的题库结构</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bank-actions">
+                            <button id="clear-selections" class="btn btn-small btn-secondary">
+                                <i class="fas fa-eraser"></i> 清空选择
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <div class="footer-left">
+                <div class="status-info">
+                    <span class="status-label"><i class="fas fa-info-circle"></i> 状态:</span>
+                    <span class="status-badge">
+                        <i class="fas fa-edit"></i> 编辑中
+                    </span>
+                </div>
+                <div class="system-info">
+                    <span class="info-item">
+                        <i class="fas fa-clock"></i>
+                        <span id="current-time">--:--:--</span>
+                    </span>
+                    <span class="info-item">
+                        <i class="fas fa-server"></i>
+                        <span>组卷系统 v2.0</span>
+                    </span>
+                </div>
+            </div>
+            <div class="footer-right">
+                <div class="action-buttons">
+                    <button id="save-template-btn" class="btn btn-secondary">
+                        <i class="fas fa-save"></i> 保存为模板
+                    </button>
+                    <button id="preview-btn" class="btn btn-secondary">
+                        <i class="fas fa-eye"></i> 试卷详情
+                    </button>
+                    <button id="cancel-btn" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> 取消
+                    </button>
+                    <button id="generate-btn" class="btn btn-primary">
+                        <i class="fas fa-check-circle"></i> 生成试卷
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <div id="message-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">提示</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="modal-message"></p>
+            </div>
+            <div class="modal-footer">
+                <button id="modal-confirm" class="btn btn-primary">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模板管理模态框 -->
+<div id="template-manage-modal" class="modal">
+    <div class="modal-content modal-lg" style="max-width: 800px;">
+        <div class="modal-header">
+            <h3>模板管理 - <span id="template-manage-subject"></span></h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="template-list-container">
+                <table class="template-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 70%;">模板名称</th>
+                            <th style="width: 30%;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="template-list">
+                        <!-- 动态加载 -->
+                    </tbody>
+                </table>
+                <div id="template-empty-state" class="empty-state" style="display: none;">
+                    <i class="fas fa-folder-open"></i>
+                    <p>暂无模板</p>
+                    <p class="empty-hint">点击"保存为模板"按钮创建新模板</p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="template-manage-close" class="btn btn-primary">关闭</button>
+        </div>
+    </div>
+</div>
+    
+<!-- 用户管理模态框 -->
+<div id="user-manage-modal" class="modal">
+    <div class="modal-content modal-lg" style="max-width: 900px;">
+        <div class="modal-header">
+            <h3>用户管理</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">用户名</th>
+                        <th style="width: 25%;">用户ID</th>
+                        <th style="width: 15%;">角色</th>
+                        <th style="width: 25%;">创建时间</th>
+                        <th style="width: 15%;">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="user-list">
+                    <!-- 动态加载 -->
+                </tbody>
+            </table>
+            
+            <div class="add-user-form">
+                <h4>添加新用户</h4>
+                <div class="form-row">
+                    <input type="text" id="new-username" placeholder="用户名">
+                    <input type="password" id="new-password" placeholder="密码">
+                    <select id="new-role">
+                        <option value="user">普通用户</option>
+                        <option value="admin">管理员</option>
+                    </select>
+                    <button id="create-user-btn" class="btn btn-primary">创建用户</button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="user-manage-exit" class="btn btn-primary">退出</button>
+        </div>
+    </div>
+</div>
+    
+    <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "users": [
+    {
+      "id": "admin",
+      "username": "admin",
+      "password": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+      "role": "admin",
+      "created_at": "2026-02-21 15:47:31"
+    },
+    {
+      "id": "math",
+      "username": "math",
+      "password": "e2d833a3825bacfba36715285294bffd07b566b1113cbc6b2f9da575d1948f53",
+      "role": "user",
+      "created_at": "2026-03-04 16:44:59"
+    }
+  ]
+}

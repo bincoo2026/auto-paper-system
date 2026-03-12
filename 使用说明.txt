@@ -1,0 +1,292 @@
+
+### 2. **run.py** (启动脚本)
+```python
+#!/usr/bin/env python3
+"""
+自动组卷系统启动脚本
+"""
+import os
+import sys
+import json
+from pathlib import Path
+
+# 添加backend目录到Python路径
+backend_dir = Path(__file__).parent / 'backend'
+sys.path.insert(0, str(backend_dir))
+
+def check_dependencies():
+    """检查依赖"""
+    try:
+        import flask
+        print("✓ Flask 已安装")
+        return True
+    except ImportError:
+        print("✗ Flask 未安装，正在安装...")
+        try:
+            os.system(f"{sys.executable} -m pip install -r {backend_dir}/requirements.txt")
+            print("✓ 依赖安装完成")
+            return True
+        except:
+            print("✗ 依赖安装失败，请手动安装：")
+            print(f"  {sys.executable} -m pip install -r {backend_dir}/requirements.txt")
+            return False
+
+def create_sample_structure():
+    """创建示例目录结构"""
+    from backend.config import Config
+    
+    print("正在初始化目录结构...")
+    
+    # 确保目录存在
+    Config.init_dirs()
+    
+    # 创建示例题库
+    create_sample_bank()
+    
+    # 创建示例模板
+    create_sample_template()
+    
+    print("✓ 目录结构初始化完成")
+
+def create_sample_bank():
+    """创建示例题库"""
+    from backend.config import Config
+    
+    # 创建高等数学题库结构
+    math_dir = Config.BANK_ROOT / "高等数学"
+    math_dir.mkdir(exist_ok=True)
+    
+    # 创建各种题型的目录结构
+    question_types = ["选择题", "判断题", "计算题", "填空题", "解答题", "应用题", "证明题"]
+    chapters = ["第一章 函数与极限", "第二章 导数与微分", "第三章 积分"]
+    
+    for qtype in question_types:
+        type_dir = math_dir / qtype
+        type_dir.mkdir(exist_ok=True)
+        
+        for chapter in chapters:
+            chapter_dir = type_dir / chapter
+            chapter_dir.mkdir(exist_ok=True)
+    
+    # 创建示例题目文件 - 选择题
+    choice_content = """# 函数概念选择题
+
+---
+
+函数 $f(x) = \\sqrt{4-x^2}$ 的定义域是  
+A. $[-2, 2]$ B. $(-2, 2)$ C. $(-\\infty, -2] \\cup [2, +\\infty)$ D. $(-2, +\\infty)$  
+答案：A  
+解析：要使函数有意义，需满足 $4-x^2 \\geq 0$，解得 $-2 \\leq x \\leq 2$。
+
+---
+
+函数 $f(x) = \\frac{1}{x-1}$ 的定义域是  
+A. $(-\\infty, 1) \\cup (1, +\\infty)$ B. $(-\\infty, +\\infty)$ C. $(1, +\\infty)$ D. $(-\\infty, 1)$  
+答案：A  
+解析：分母不能为零，所以 $x \\neq 1$。
+
+---
+
+函数 $f(x) = \\ln(x+1)$ 的定义域是  
+A. $(-1, +\\infty)$ B. $[-1, +\\infty)$ C. $(0, +\\infty)$ D. $[0, +\\infty)$  
+答案：A  
+解析：对数函数要求真数大于零，即 $x+1 > 0$，解得 $x > -1$。
+"""
+    
+    choice_file = math_dir / "选择题" / "第一章 函数与极限" / "函数概念.md"
+    if not choice_file.exists():
+        choice_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(choice_file, 'w', encoding='utf-8') as f:
+            f.write(choice_content)
+    
+    # 创建示例题目文件 - 判断题
+    judge_content = """# 函数概念判断题
+
+---
+
+函数 $f(x) = x^2$ 是偶函数。  
+答案：正确  
+难度：容易
+
+---
+
+函数 $f(x) = \\sqrt{x}$ 的定义域是全体实数。  
+答案：错误  
+难度：容易  
+解析：根号内的表达式必须非负，所以定义域是 $[0, +\\infty)$。
+
+---
+
+函数 $f(x) = \\sin x$ 是周期函数。  
+答案：正确  
+难度：容易  
+解析：正弦函数的周期为 $2\\pi$。
+"""
+    
+    judge_file = math_dir / "判断题" / "第一章 函数与极限" / "函数概念.md"
+    if not judge_file.exists():
+        judge_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(judge_file, 'w', encoding='utf-8') as f:
+            f.write(judge_content)
+    
+    # 创建示例题目文件 - 计算题
+    calc_content = """# 极限计算题
+
+---
+
+计算极限：$\\lim_{x \\to 0} \\frac{\\tan x - \\sin x}{x^3}$  
+答案：$\\frac{1}{2}$  
+解析：  
+$$  
+\\begin{aligned}  
+\\lim_{x \\to 0} \\frac{\\tan x - \\sin x}{x^3}  
+&= \\lim_{x \\to 0} \\frac{\\sin x (1 - \\cos x)}{x^3 \\cos x} \\\\  
+&= \\lim_{x \\to 0} \\frac{x \\cdot \\frac{1}{2}x^2}{x^3} = \\frac{1}{2}  
+\\end{aligned}  
+$$  
+
+---
+
+计算极限：$\\lim_{x \\to \\infty} \\left(1 + \\frac{2}{x}\\right)^{3x}$  
+答案：$e^6$  
+解析：令 $t = \\frac{x}{2}$，则原式 $= \\lim_{t \\to \\infty} \\left(1 + \\frac{1}{t}\\right)^{6t} = e^6$。
+"""
+    
+    calc_file = math_dir / "计算题" / "第一章 函数与极限" / "极限计算.md"
+    if not calc_file.exists():
+        calc_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(calc_file, 'w', encoding='utf-8') as f:
+            f.write(calc_content)
+    
+    # 创建示例题目文件 - 填空题
+    blank_content = """# 极限概念填空题
+
+---
+
+$\\lim_{x \\to 0} \\frac{\\sin 3x}{x} = $ ______  
+答案：3  
+解析：利用重要极限 $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$，原式 $= 3 \\times 1 = 3$。
+
+---
+
+$\\lim_{x \\to \\infty} \\left(1 + \\frac{1}{x}\\right)^x = $ ______  
+答案：$e$  
+解析：这是自然常数 $e$ 的定义式。
+"""
+    
+    blank_file = math_dir / "填空题" / "第一章 函数与极限" / "极限概念.md"
+    if not blank_file.exists():
+        blank_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(blank_file, 'w', encoding='utf-8') as f:
+            f.write(blank_content)
+    
+    print("✓ 示例题库创建完成")
+
+def create_sample_template():
+    """创建示例模板"""
+    from backend.config import Config
+    
+    template_data = {
+        "name": "高数期中模板",
+        "title": "高等数学期中测试卷",
+        "subject": "高等数学",
+        "created_at": "2024-06-01",
+        "total_score": 100,
+        "sections": [
+            {
+                "type_name": "选择题",
+                "order": 1,
+                "question_count": 10,
+                "total_score": 30
+            },
+            {
+                "type_name": "判断题",
+                "order": 2,
+                "question_count": 10,
+                "total_score": 20
+            },
+            {
+                "type_name": "填空题",
+                "order": 3,
+                "question_count": 10,
+                "total_score": 20
+            },
+            {
+                "type_name": "计算题",
+                "order": 4,
+                "question_count": 5,
+                "total_score": 30
+            }
+        ],
+        "selections": {
+            "高等数学/选择题/第一章 函数与极限/函数概念": {
+                "count": 3,
+                "score": 9
+            },
+            "高等数学/判断题/第一章 函数与极限/函数概念": {
+                "count": 3,
+                "score": 6
+            },
+            "高等数学/填空题/第一章 函数与极限/极限概念": {
+                "count": 2,
+                "score": 4
+            },
+            "高等数学/计算题/第一章 函数与极限/极限计算": {
+                "count": 2,
+                "score": 12
+            }
+        }
+    }
+    
+    template_file = Config.TEMPLATE_DIR / "高数期中模板.json"
+    if not template_file.exists():
+        template_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(template_file, 'w', encoding='utf-8') as f:
+            json.dump(template_data, f, ensure_ascii=False, indent=2)
+        print("✓ 示例模板创建完成")
+
+def start_server():
+    """启动Flask服务器"""
+    try:
+        from backend.app import app
+        print("\n" + "="*50)
+        print("自动组卷系统启动成功!")
+        print("="*50)
+        print("\n访问地址: http://localhost:5000")
+        print("按 Ctrl+C 停止服务\n")
+        print("-"*50)
+        
+        app.run(debug=True, host='0.0.0.0', port=5000, use_reloader=False)
+    except Exception as e:
+        print(f"\n✗ 启动失败: {e}")
+        print("请检查：")
+        print("1. 是否已安装所有依赖")
+        print("2. 端口5000是否被占用")
+        print("3. Python版本是否为3.7+")
+        return False
+
+def main():
+    """主函数"""
+    print("="*50)
+    print("自动组卷系统初始化")
+    print("="*50)
+    
+    # 检查依赖
+    if not check_dependencies():
+        return
+    
+    # 创建目录结构
+    create_sample_structure()
+    
+    # 启动服务器
+    start_server()
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n\n服务已停止")
+    except Exception as e:
+        print(f"\n✗ 系统错误: {e}")
+        input("按Enter键退出...")
+        sys.exit(1)

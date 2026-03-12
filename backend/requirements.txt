@@ -1,0 +1,10 @@
+# 核心依赖
+Flask==2.3.3
+Flask-CORS==4.0.0
+
+# 可选依赖（用于Markdown转Word）
+pypandoc
+
+# 开发依赖
+# 注意：pypandoc需要系统安装pandoc软件
+# 下载地址：https://github.com/jgm/pandoc/releases
