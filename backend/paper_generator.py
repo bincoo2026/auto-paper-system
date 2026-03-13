@@ -87,16 +87,12 @@ class PaperGenerator:
         with open(student_path, 'w', encoding='utf-8') as f:
             f.write(student_content)
         
-        student_word_path = PaperGenerator.convert_to_word(student_path)
-        
         teacher_content = CustomPaperFormatter.format_teacher_paper(paper_content)
         teacher_filename = f"{safe_title}_教师卷.md"
         teacher_path = output_dir / teacher_filename
         
         with open(teacher_path, 'w', encoding='utf-8') as f:
             f.write(teacher_content)
-        
-        teacher_word_path = PaperGenerator.convert_to_word(teacher_path)
         
         json_filename = f"{safe_title}_试卷内容.json"
         json_path = output_dir / json_filename
@@ -110,8 +106,8 @@ class PaperGenerator:
             'student_path': str(student_path),
             'teacher_path': str(teacher_path),
             'json_path': str(json_path),
-            'student_word_path': str(student_word_path) if student_word_path else None,
-            'teacher_word_path': str(teacher_word_path) if teacher_word_path else None
+            'student_word_path': str(student_path.with_suffix('.docx')),
+            'teacher_word_path': str(teacher_path.with_suffix('.docx'))
         }
     
     @staticmethod
@@ -198,16 +194,12 @@ class PaperGenerator:
             with open(student_path, 'w', encoding='utf-8') as f:
                 f.write(student_content)
             
-            student_word_path = PaperGenerator.convert_to_word(student_path)
-            
             teacher_content = CustomPaperFormatter.format_teacher_paper(paper_content)
             teacher_filename = f"{safe_title}_第{paper_index}套_教师卷.md"
             teacher_path = batch_folder / teacher_filename
             
             with open(teacher_path, 'w', encoding='utf-8') as f:
                 f.write(teacher_content)
-            
-            teacher_word_path = PaperGenerator.convert_to_word(teacher_path)
             
             json_filename = f"{safe_title}_第{paper_index}套_试卷内容.json"
             json_path = batch_folder / json_filename
@@ -222,8 +214,8 @@ class PaperGenerator:
                 'student_path': str(student_path),
                 'teacher_path': str(teacher_path),
                 'json_path': str(json_path),
-                'student_word_path': str(student_word_path) if student_word_path else None,
-                'teacher_word_path': str(teacher_word_path) if teacher_word_path else None,
+                'student_word_path': str(student_path.with_suffix('.docx')),
+                'teacher_word_path': str(teacher_path.with_suffix('.docx')),
                 'seed': paper_seed
             })
         

@@ -3,7 +3,7 @@ Flask==2.3.3
 Flask-CORS==4.0.0
 
 # 可选依赖（用于Markdown转Word）
-pypandoc
+pypandoc_binary
 
 # 开发依赖
 # 注意：pypandoc需要系统安装pandoc软件

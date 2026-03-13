@@ -1073,8 +1073,21 @@ class PaperComposer {
         downloadWordBtn.style.marginRight = '0';
         downloadWordBtn.style.width = '100%';
         downloadWordBtn.onclick = async () => {
-            modal.classList.remove('show');
-            await this.downloadWordPapers(folderName);
+            // 显示加载状态
+            downloadWordBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在准备下载...';
+            downloadWordBtn.disabled = true;
+            
+            try {
+                await this.downloadWordPapers(folderName);
+                // 下载完成后关闭模态框
+                modal.classList.remove('show');
+            } catch (error) {
+                console.error('下载失败:', error);
+                this.showMessage('下载失败: ' + error.message, 'error');
+                // 恢复按钮状态
+                downloadWordBtn.innerHTML = '<i class="fas fa-file-word"></i> 下载Word试卷';
+                downloadWordBtn.disabled = false;
+            }
         };
         
         modalFooter.appendChild(downloadWordBtn);

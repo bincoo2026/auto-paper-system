@@ -7,9 +7,8 @@ import sys
 import json
 from pathlib import Path
 
-# 添加backend目录到Python路径
+# 先检查依赖，再添加backend目录到Python路径
 backend_dir = Path(__file__).parent / 'backend'
-sys.path.insert(0, str(backend_dir))
 
 def check_dependencies():
     """检查依赖"""
@@ -30,6 +29,8 @@ def check_dependencies():
 
 def create_sample_structure():
     """创建示例目录结构"""
+    # 添加backend目录到Python路径
+    sys.path.insert(0, str(backend_dir))
     from backend.config import Config
     
     print("正在初始化目录结构...")

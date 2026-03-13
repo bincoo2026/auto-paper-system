@@ -432,16 +432,26 @@ def download_word_papers(folder_name):
         
         with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
             word_files_found = False
-            for file_path in folder_path.glob('*.docx'):
-                if file_path.is_file():
-                    arcname = file_path.name
-                    zipf.write(file_path, arcname)
-                    word_files_found = True
-                    print(f"添加Word文件: {arcname}")
+            # 查找所有md文件并动态转换为Word
+            for md_path in folder_path.glob('*.md'):
+                if md_path.is_file():
+                    # 动态转换为Word
+                    from backend.paper_generator import PaperGenerator
+                    docx_path = PaperGenerator.convert_to_word(md_path)
+                    if docx_path and docx_path.exists():
+                        arcname = docx_path.name
+                        zipf.write(docx_path, arcname)
+                        word_files_found = True
+                        print(f"添加Word文件: {arcname}")
+                        # 删除临时生成的Word文件
+                        try:
+                            docx_path.unlink()
+                        except:
+                            pass
             
             if not word_files_found:
                 os.unlink(zip_path)
-                return jsonify({'error': '该文件夹中没有Word格式的试卷文件'}), 404
+                return jsonify({'error': '该文件夹中没有可转换的试卷文件'}), 404
         
         return send_file(
             zip_path,
@@ -451,7 +461,8 @@ def download_word_papers(folder_name):
         )
     except Exception as e:
         print(f"打包下载失败: {e}")
-        return jsonify({'error': f'打包下载失败: {str(e)}'}), 500
+        error_message = f'打包下载失败: {str(e)}'
+        return jsonify({'error': error_message}), 500
     finally:
         try:
             os.unlink(zip_path)
