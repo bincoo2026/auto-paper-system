@@ -561,9 +561,8 @@ class PaperComposer {
             const questionContent = this.extractQuestionContent(question.content);
             
             html += `<div class="question-item">
-                <div class="question-content" id="question-${index}">
-                    <span class="question-number">${index + 1}.</span>
-                </div>
+                <span class="question-number">${index + 1}.</span>
+                <div class="question-content" id="question-${index}"></div>
             </div>`;
         });
         

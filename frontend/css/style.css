@@ -873,6 +873,8 @@ header::after {
 
 /* 题目项样式 */
 .question-item {
+    display: flex;
+    align-items: flex-start;
     background: white;
     border: 2px solid #e2e8f0;
     border-radius: 8px;
@@ -886,7 +888,7 @@ header::after {
 }
 
 .question-number {
-    display: inline-block;
+    flex-shrink: 0;
     background: linear-gradient(135deg, #3498db, #2980b9);
     color: white;
     padding: 0.2rem 0.6rem;
@@ -895,9 +897,11 @@ header::after {
     font-weight: 600;
     margin-right: 0.8rem;
     margin-bottom: 0;
+    align-self: flex-start;
 }
 
 .question-content {
+    flex: 1;
     line-height: 1.6;
     color: #334155;
 }
