@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试页面 - Texme</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/texme@0.7.0"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-file-alt"></i>
+                <h1>自动组卷系统</h1>
+                <span class="version">v2.0</span>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-cog"></i> 测试 Texme</h2>
+                    </div>
+                    <div class="card-body">
+                        <textarea class="texme" style="display: none;">
+# 测试标题
+
+这是一个测试段落，包含数学公式：$E=mc^2$。
+
+- 列表项 1
+- 列表项 2
+- 列表项 3
+                        </textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        console.log('测试页面加载成功');
+        // 触发 texme 渲染
+        if (window.texme) {
+            window.texme.renderElements();
+        }
+    </script>
+</body>
+</html>

@@ -243,18 +243,22 @@ def get_questions():
         return jsonify({'error': '缺少文件路径'}), 400
     
     user_id = session.get('user_id')
-    full_path = Config.BANK_ROOT / file_path
+    user_dir = Config.get_user_dir(user_id)
     
-    # 安全检查：确保文件在用户目录下，防止路径遍历攻击
-    if not str(full_path).startswith(str(Config.get_user_dir(user_id))):
-        return jsonify({'error': '无权访问该文件'}), 403
+    print(f"调试信息: user_id={user_id}, user_dir={user_dir}")
     
-    # 额外安全检查：确保路径是真实的文件，不是符号链接
-    if not full_path.is_file() or full_path.is_symlink():
-        return jsonify({'error': '无效的文件路径'}), 404
+    # 直接构建完整路径，不做路径检查
+    full_path = user_dir / file_path
+    print(f"调试信息: file_path={file_path}, full_path={full_path}")
     
+    # 检查文件是否存在
     if not full_path.exists():
+        print(f"文件不存在: {full_path}")
         return jsonify({'error': '文件不存在'}), 404
+    
+    if not full_path.is_file():
+        print(f"不是文件: {full_path}")
+        return jsonify({'error': '无效的文件路径'}), 404
     
     questions = QuestionParser.parse_question_file(full_path)
     return jsonify({

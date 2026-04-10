@@ -345,12 +345,14 @@ class PaperComposer {
                 
            // 题库选题进度条（下面空行）：  ${selection.count > 0 ? `<span class="selection-badge" title="已选${selection.count}题">${percent}%</span>` : ''}
 
-                html += `<div class="topic-item" data-key="${key}">
+                html += `<div class="topic-item" data-key="${key}" style="cursor: pointer;">
                     <div class="topic-info">
                         <i class="fas fa-file-alt"></i>
                         <span class="topic-name" title="${topic.name}">${topic.name}</span>
                         <span class="count-badge" title="共${topic.count}题">共${topic.count}题</span>
-                         
+                        <span class="preview-badge" title="点击查看题目">
+                            <i class="fas fa-chevron-down"></i>
+                        </span>
                     </div>
                     <div class="topic-controls">
                         <div class="input-group">
@@ -374,6 +376,9 @@ class PaperComposer {
                                    title="该考点题目总分">
                         </div>
                     </div>
+                    <div class="topic-questions" style="display: none;">
+                        <div class="topic-questions-content"></div>
+                    </div>
                 </div>`;
             });
             
@@ -384,6 +389,7 @@ class PaperComposer {
         
         this.bindChapterHeaders();
         this.bindTopicInputs();
+        this.bindTopicPreview();
     }
     
     showEmptyBank() {
@@ -466,6 +472,131 @@ class PaperComposer {
             scoreInput.addEventListener('change', updateHandler);
             scoreInput.addEventListener('input', updateHandler);
         });
+    }
+    
+    bindTopicPreview() {
+        document.querySelectorAll('.topic-item').forEach(item => {
+            const topicInfo = item.querySelector('.topic-info');
+            const questionsContainer = item.querySelector('.topic-questions');
+            const questionsContent = item.querySelector('.topic-questions-content');
+            const previewBadge = item.querySelector('.preview-badge');
+            const key = item.dataset.key;
+            
+            topicInfo.addEventListener('click', async (e) => {
+                // 防止事件冒泡到其他元素
+                e.stopPropagation();
+                
+                // 切换题目预览的显示状态
+                const isVisible = questionsContainer.style.display === 'block';
+                
+                if (isVisible) {
+                    // 收起题目预览
+                    questionsContainer.style.display = 'none';
+                    previewBadge.innerHTML = '<i class="fas fa-chevron-down"></i>';
+                } else {
+                    // 展开题目预览
+                    previewBadge.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    
+                    try {
+                        // 获取题目数据
+                        const questions = await this.getTopicQuestions(key);
+                        
+                        // 渲染题目
+                        await this.renderTopicQuestions(questionsContent, questions);
+                        
+                        // 显示题目预览
+                        questionsContainer.style.display = 'block';
+                        previewBadge.innerHTML = '<i class="fas fa-chevron-up"></i>';
+                    } catch (error) {
+                        console.error('加载题目失败:', error);
+                        questionsContent.innerHTML = '<div class="error-message">加载题目失败，请重试</div>';
+                        questionsContainer.style.display = 'block';
+                        previewBadge.innerHTML = '<i class="fas fa-chevron-up"></i>';
+                    }
+                }
+            });
+        });
+    }
+    
+    async getTopicQuestions(key) {
+        try {
+            // 解析key以获取文件路径
+            // key格式: 科目/题型/章节/知识点
+            const parts = key.split('/');
+            if (parts.length < 4) {
+                throw new Error('无效的考点key');
+            }
+            
+            // 构建文件路径
+            const [subject, questionType, chapter, topic] = parts;
+            const filePath = `${subject}/${questionType}/${chapter}/${topic}.md`;
+            
+            const response = await fetch(`/api/bank/questions?path=${encodeURIComponent(filePath)}`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const data = await response.json();
+            return data.questions || [];
+        } catch (error) {
+            console.error('获取题目失败:', error);
+            throw error;
+        }
+    }
+    
+    async renderTopicQuestions(container, questions) {
+        if (!questions || questions.length === 0) {
+            container.innerHTML = '<div class="empty-questions">该考点暂无题目</div>';
+            return;
+        }
+        
+        let html = '';
+        
+        questions.forEach((question, index) => {
+            // 只渲染题目部分，不包含答案和解析
+            const questionContent = this.extractQuestionContent(question.content);
+            
+            html += `<div class="question-item">
+                <div class="question-content" id="question-${index}">
+                    <span class="question-number">${index + 1}.</span>
+                </div>
+            </div>`;
+        });
+        
+        container.innerHTML = html;
+        
+        // 使用texme渲染每个题目
+        questions.forEach((question, index) => {
+            const questionContent = this.extractQuestionContent(question.content);
+            const questionElement = document.getElementById(`question-${index}`);
+            
+            if (questionElement && window.texme) {
+                // 使用texme.render方法渲染内容
+                const renderedContent = window.texme.render(questionContent);
+                questionElement.innerHTML = renderedContent;
+            }
+        });
+        
+        // 等待MathJax渲染完成
+        if (window.MathJax) {
+            await new Promise(resolve => {
+                window.MathJax.typesetPromise().then(resolve);
+            });
+        }
+    }
+    
+    extractQuestionContent(content) {
+        // 提取题目部分，不包含答案和解析
+        // 假设答案以"答案："或"答案:"开头
+        const answerIndex = content.search(/\n答案[：:]/i);
+        if (answerIndex !== -1) {
+            return content.substring(0, answerIndex);
+        }
+        return content;
     }
     
     updateSelectionBadge(item, percent) {

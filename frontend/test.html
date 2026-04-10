@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试页面</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-file-alt"></i>
+                <h1>自动组卷系统</h1>
+                <span class="version">v2.0</span>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="header-username">admin</div>
+                    <div class="user-role" id="header-role">管理员</div>
+                </div>
+                <button id="user-manage-btn" class="btn btn-secondary" title="用户管理">
+                    <i class="fas fa-users-cog"></i> 用户管理
+                </button>
+                <button id="logout-btn-header" class="btn btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i> 登出
+                </button>                                
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <!-- 左侧面板 -->
+            <div class="left-panel">
+                <!-- 试卷设置 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-cog"></i> 试卷设置</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="subject-select"><i class="fas fa-book"></i> 选择课程或科目</label>
+                            <select id="subject-select" class="form-control">
+                                <option value="">-- 请选择课程或科目 --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧面板 -->
+            <div class="right-panel">
+                <div class="card full-height">
+                    <div class="card-header">
+                        <h2><i class="fas fa-book"></i> 从题库选题</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="question-type-tabs">
+                            <div class="tabs-header">
+                                <div class="tabs-container">
+                                    <button class="tab-btn active" data-type="判断题">
+                                        <i class="fas fa-question-circle"></i>
+                                        判断题
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="tabs-content">
+                                <div id="bank-tree" class="bank-tree">
+                                    <div class="empty-state">
+                                        <i class="fas fa-database"></i>
+                                        <p>请先选择科目</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        console.log('测试页面加载成功');
+    </script>
+</body>
+</html>
