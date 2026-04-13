@@ -2139,14 +2139,8 @@ footer::before {
 .chapter-stats-title i {
     color: #3498db;
 }
-.question-options {
-    display: inline-block;
-    margin-top: 4px;
-}
 
-/* 或者让选项单独一行并稍微缩进 */
 .question-options {
-    display: block;
     margin-top: 6px;
-    padding-left: 0;
+    display: inline-block;
 }
