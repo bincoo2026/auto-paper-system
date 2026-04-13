@@ -588,16 +588,26 @@ class PaperComposer {
         let html = '';
         
         questions.forEach((question, index) => {
-            // 只渲染题目部分，不包含答案和解析
-            const questionContent = this.extractQuestionContent(question.content);
-            console.log(`题目${index + 1}内容:`, questionContent);
-            
-            html += `<div class="question-item">
-                <span class="question-number">${index + 1}.</span>
-                <div class="question-content">${this.escapeHtml(questionContent)}</div>
-            </div>`;
-        });
+        let questionContent = this.extractQuestionContent(question.content);
         
+        // 如果有选项，将选项追加到内容后面
+        if (question.options && question.options.length > 0) {
+            // 选项已经在后端被剥离，需要重新添加
+            // 选项格式：['A. xxx', 'B. xxx', 'C. xxx', 'D. xxx']
+         // const optionsHtml = ' ' + question.options.join('  ');  // 两个 em 空格分隔
+           // questionContent += optionsHtml;
+         questionContent += '\n\n' + question.options.join('  ');
+       // questionContent += '<br>' + question.options.join('  ');
+        }
+    
+    html += `<div class="question-item">
+        <span class="question-number">${index + 1}.</span>
+        <div class="question-content">${this.escapeHtml(questionContent)}</div>
+        </div>`;
+});
+
+
+
         container.innerHTML = html;
         
         // 尝试使用 KaTeX 渲染公式，但即使失败也不影响题目显示
@@ -687,15 +697,26 @@ class PaperComposer {
     }
     
     extractQuestionContent(content) {
-        // 提取题目部分，不包含答案和解析
-        // 假设答案以"答案："或"答案:"开头
-        const answerIndex = content.search(/\n答案[：:]/i);
-        if (answerIndex !== -1) {
-            return content.substring(0, answerIndex);
-        }
-        return content;
+    // 提取题目部分，不包含答案和解析
+    // 但保留选择题的选项（选项在答案之前）
+    
+    // 先找到"答案："的位置
+    const answerIndex = content.search(/\n答案[：:]/i);
+    if (answerIndex !== -1) {
+        // 只截取到"答案："之前的内容，这已经包含了题干和选项
+        return content.substring(0, answerIndex);
     }
     
+    // 如果没有"答案："，再尝试找"解析："
+    const analysisIndex = content.search(/\n解析[：:]/i);
+    if (analysisIndex !== -1) {
+        return content.substring(0, analysisIndex);
+    }
+    
+    return content;
+}
+   
+
     updateSelectionBadge(item, percent) {
         let badge = item.querySelector('.selection-badge');
         if (percent > 0) {
