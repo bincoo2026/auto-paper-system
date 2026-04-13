@@ -297,6 +297,52 @@ class PaperComposer {
         this.renderCurrentTypeChapters();
     }
     
+    /**
+ * 对章节进行排序，支持"第n章"、"第一章"等格式
+ */
+sortChapters(chapters) {
+    return [...chapters].sort((a, b) => {
+        const orderA = this.extractChapterOrder(a.name);
+        const orderB = this.extractChapterOrder(b.name);
+        return orderA - orderB;
+    });
+}
+
+/**
+ * 从章节名称中提取排序序号
+ */
+extractChapterOrder(chapterName) {
+    if (!chapterName) return 999;
+    
+    // 匹配 "第1章" 格式（阿拉伯数字）
+    const arabicMatch = chapterName.match(/第(\d+)章/);
+    if (arabicMatch) {
+        return parseInt(arabicMatch[1], 10);
+    }
+    
+    // 匹配 "第一章" 格式（中文数字）
+    const chineseNumbers = {
+        '一': 1, '二': 2, '三': 3, '四': 4, '五': 5,
+        '六': 6, '七': 7, '八': 8, '九': 9, '十': 10,
+        '十一': 11, '十二': 12, '十三': 13, '十四': 14, '十五': 15,
+        '十六': 16, '十七': 17, '十八': 18, '十九': 19, '二十': 20
+    };
+    
+    const chineseMatch = chapterName.match(/第([一二三四五六七八九十]+)章/);
+    if (chineseMatch) {
+        const chineseNum = chineseMatch[1];
+        return chineseNumbers[chineseNum] || 999;
+    }
+    
+    // 匹配 "1. xxx" 或 "1 xxx" 格式
+    const numberMatch = chapterName.match(/^(\d+)[\.\s]|^(\d+)$/);
+    if (numberMatch) {
+        return parseInt(numberMatch[1] || numberMatch[2], 10);
+    }
+    
+    return 999;
+}
+
     // 渲染当前题型的章节
     renderCurrentTypeChapters() {
         const treeContainer = document.getElementById('bank-tree');
@@ -313,7 +359,8 @@ class PaperComposer {
         }
         
         const subjectData = this.bankData[this.currentSubject];
-        const typeData = subjectData[this.currentQuestionType] || [];
+       let typeData = subjectData[this.currentQuestionType] || [];
+           typeData = this.sortChapters(typeData);
         
         if (typeData.length === 0) {
             treeContainer.innerHTML = `
