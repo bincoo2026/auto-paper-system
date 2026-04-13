@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KaTeX 简单测试</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>KaTeX 渲染测试</h1>
+    
+    <div class="test">
+        <h2>行内公式</h2>
+        <p>$E=mc^2$</p>
+        <p>$a^2 + b^2 = c^2$</p>
+    </div>
+    
+    <div class="test">
+        <h2>块级公式</h2>
+        <p>$$E=mc^2$$</p>
+        <p>$$a^2 + b^2 = c^2$$</p>
+    </div>
+    
+    <div class="test">
+        <h2>混合公式</h2>
+        <p>行内公式 $E=mc^2$ 和块级公式 $$a^2 + b^2 = c^2$$</p>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ]
+            });
+        });
+    </script>
+</body>
+</html>

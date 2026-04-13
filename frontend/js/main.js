@@ -28,6 +28,13 @@ class PaperComposer {
     async init() {
         console.log('自动组卷系统初始化...');
         
+        // 检查KaTeX
+        if (window.katex) {
+            console.log('✅ KaTeX已加载');
+        } else {
+            console.warn('⚠️ KaTeX未加载，将使用动态加载');
+        }
+        
         // 更新当前时间
         this.updateCurrentTime();
         setInterval(() => this.updateCurrentTime(), 1000);
@@ -475,51 +482,68 @@ class PaperComposer {
     }
     
     bindTopicPreview() {
+        console.log('绑定考点预览事件');
         document.querySelectorAll('.topic-item').forEach(item => {
+            console.log('找到考点项:', item);
             const topicInfo = item.querySelector('.topic-info');
             const questionsContainer = item.querySelector('.topic-questions');
             const questionsContent = item.querySelector('.topic-questions-content');
             const previewBadge = item.querySelector('.preview-badge');
             const key = item.dataset.key;
             
-            topicInfo.addEventListener('click', async (e) => {
-                // 防止事件冒泡到其他元素
-                e.stopPropagation();
-                
-                // 切换题目预览的显示状态
-                const isVisible = questionsContainer.style.display === 'block';
-                
-                if (isVisible) {
-                    // 收起题目预览
-                    questionsContainer.style.display = 'none';
-                    previewBadge.innerHTML = '<i class="fas fa-chevron-down"></i>';
-                } else {
-                    // 展开题目预览
-                    previewBadge.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                    
-                    try {
-                        // 获取题目数据
-                        const questions = await this.getTopicQuestions(key);
-                        
-                        // 渲染题目
-                        await this.renderTopicQuestions(questionsContent, questions);
-                        
-                        // 显示题目预览
-                        questionsContainer.style.display = 'block';
-                        previewBadge.innerHTML = '<i class="fas fa-chevron-up"></i>';
-                    } catch (error) {
-                        console.error('加载题目失败:', error);
-                        questionsContent.innerHTML = '<div class="error-message">加载题目失败，请重试</div>';
-                        questionsContainer.style.display = 'block';
-                        previewBadge.innerHTML = '<i class="fas fa-chevron-up"></i>';
-                    }
-                }
+            console.log('考点项信息:', {
+                topicInfo: !!topicInfo,
+                questionsContainer: !!questionsContainer,
+                questionsContent: !!questionsContent,
+                previewBadge: !!previewBadge,
+                key: key
             });
+            
+            if (topicInfo) {
+                topicInfo.addEventListener('click', async (e) => {
+                    console.log('点击考点:', key);
+                    // 防止事件冒泡到其他元素
+                    e.stopPropagation();
+                    
+                    // 切换题目预览的显示状态
+                    const isVisible = questionsContainer.style.display === 'block';
+                    
+                    if (isVisible) {
+                        // 收起题目预览
+                        questionsContainer.style.display = 'none';
+                        previewBadge.innerHTML = '<i class="fas fa-chevron-down"></i>';
+                    } else {
+                        // 展开题目预览
+                        previewBadge.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                        
+                        try {
+                            // 获取题目数据
+                            console.log('获取题目数据:', key);
+                            const questions = await this.getTopicQuestions(key);
+                            console.log('获取到题目数据:', questions);
+                            
+                            // 渲染题目
+                            console.log('渲染题目:', questions.length);
+                            await this.renderTopicQuestions(questionsContent, questions);
+                            
+                            // 显示题目预览
+                            questionsContainer.style.display = 'block';
+                            previewBadge.innerHTML = '<i class="fas fa-chevron-up"></i>';
+                        } catch (error) {
+                            console.error('加载题目失败:', error);
+                            questionsContent.innerHTML = '<div class="error-message">加载题目失败，请重试</div>';
+                            questionsContainer.style.display = 'block';
+                            previewBadge.innerHTML = '<i class="fas fa-chevron-up"></i>';
+                        }
+                    }
+                });
+            }
         });
     }
     
     async getTopicQuestions(key) {
         try {
+            console.log('获取题目数据开始:', key);
             // 解析key以获取文件路径
             // key格式: 科目/题型/章节/知识点
             const parts = key.split('/');
@@ -531,16 +555,21 @@ class PaperComposer {
             const [subject, questionType, chapter, topic] = parts;
             const filePath = `${subject}/${questionType}/${chapter}/${topic}.md`;
             
+            console.log('构建文件路径:', filePath);
+            
             const response = await fetch(`/api/bank/questions?path=${encodeURIComponent(filePath)}`, {
                 method: 'GET',
                 credentials: 'include'
             });
+            
+            console.log('API请求状态:', response.status);
             
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}`);
             }
             
             const data = await response.json();
+            console.log('获取到题目数据:', data);
             return data.questions || [];
         } catch (error) {
             console.error('获取题目失败:', error);
@@ -554,38 +583,107 @@ class PaperComposer {
             return;
         }
         
+        console.log('题目数据:', questions);
+        
         let html = '';
         
         questions.forEach((question, index) => {
             // 只渲染题目部分，不包含答案和解析
             const questionContent = this.extractQuestionContent(question.content);
+            console.log(`题目${index + 1}内容:`, questionContent);
             
             html += `<div class="question-item">
                 <span class="question-number">${index + 1}.</span>
-                <div class="question-content" id="question-${index}"></div>
+                <div class="question-content">${this.escapeHtml(questionContent)}</div>
             </div>`;
         });
         
         container.innerHTML = html;
         
-        // 使用texme渲染每个题目
-        questions.forEach((question, index) => {
-            const questionContent = this.extractQuestionContent(question.content);
-            const questionElement = document.getElementById(`question-${index}`);
-            
-            if (questionElement && window.texme) {
-                // 使用texme.render方法渲染内容
-                const renderedContent = window.texme.render(questionContent);
-                questionElement.innerHTML = renderedContent;
+        // 尝试使用 KaTeX 渲染公式，但即使失败也不影响题目显示
+        try {
+            // 使用 KaTeX auto-render 自动渲染所有公式
+            if (window.renderMathInElement && window.katex) {
+                console.log('使用 KaTeX auto-render 渲染公式');
+                renderMathInElement(container, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\[', right: '\\]', display: true},
+                        {left: '\\(', right: '\\)', display: false}
+                    ],
+                    throwOnError: false
+                });
+            } else if (window.katex) {
+                console.log('使用 KaTeX 手动渲染公式');
+                // 降级方案：手动渲染
+                const questionContents = container.querySelectorAll('.question-content');
+                questionContents.forEach((element, index) => {
+                    if (index < questions.length) {
+                        const questionContent = this.extractQuestionContent(questions[index].content);
+                        try {
+                            // 处理题目中的数学公式
+                            let renderedContent = questionContent;
+                            
+                            // 渲染块级公式 ($$...$$) - 使用 [\s\S]*? 匹配包括换行符在内的所有字符
+                            renderedContent = renderedContent.replace(/\$\$([\s\S]*?)\$\$/g, (match, formula) => {
+                                try {
+                                    return window.katex.renderToString(formula, {
+                                        throwOnError: false,
+                                        displayMode: true
+                                    });
+                                } catch (e) {
+                                    return match;
+                                }
+                            });
+                            
+                            // 渲染块级公式 (\[...\]) - 使用 [\s\S]*? 匹配包括换行符在内的所有字符
+                            renderedContent = renderedContent.replace(/\\\[([\s\S]*?)\\\]/g, (match, formula) => {
+                                try {
+                                    return window.katex.renderToString(formula, {
+                                        throwOnError: false,
+                                        displayMode: true
+                                    });
+                                } catch (e) {
+                                    return match;
+                                }
+                            });
+                            
+                            // 渲染行内公式 ($...$) - 使用 [^$]*? 匹配不包含 $ 的内容，避免匹配到块级公式
+                            renderedContent = renderedContent.replace(/\$([^$]*?)\$/g, (match, formula) => {
+                                try {
+                                    return window.katex.renderToString(formula, {
+                                        throwOnError: false,
+                                        displayMode: false
+                                    });
+                                } catch (e) {
+                                    return match;
+                                }
+                            });
+                            
+                            // 设置渲染后的内容
+                            element.innerHTML = renderedContent;
+                        } catch (e) {
+                            console.error('设置题目内容错误:', e);
+                            // 即使渲染失败，也显示原始内容
+                            element.innerHTML = this.escapeHtml(questionContent);
+                        }
+                    }
+                });
+            } else {
+                console.warn('KaTeX 未加载，无法渲染公式');
             }
-        });
-        
-        // 等待MathJax渲染完成
-        if (window.MathJax) {
-            await new Promise(resolve => {
-                window.MathJax.typesetPromise().then(resolve);
-            });
+        } catch (error) {
+            console.error('KaTeX 渲染失败:', error);
+            // 即使KaTeX渲染失败，也不影响题目显示
         }
+    }
+    
+    // 添加一个辅助方法转义HTML
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
     
     extractQuestionContent(content) {

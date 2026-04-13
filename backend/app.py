@@ -20,7 +20,7 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SECURE'] = False
 app.config['SESSION_PERMANENT'] = False
 
-CORS(app, supports_credentials=True, origins=['http://localhost:5000'])
+CORS(app, supports_credentials=True, origins=['http://localhost:5000', 'http://localhost:8000'])
 
 # 登录验证装饰器
 def login_required(view):
