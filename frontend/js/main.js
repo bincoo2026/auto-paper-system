@@ -578,116 +578,104 @@ class PaperComposer {
     }
     
     async renderTopicQuestions(container, questions) {
-        if (!questions || questions.length === 0) {
-            container.innerHTML = '<div class="empty-questions">该考点暂无题目</div>';
-            return;
-        }
-        
-        console.log('题目数据:', questions);
-        
-        let html = '';
-        
-        questions.forEach((question, index) => {
+    if (!questions || questions.length === 0) {
+        container.innerHTML = '<div class="empty-questions">该考点暂无题目</div>';
+        return;
+    }
+    
+    console.log('开始渲染题目，KaTeX状态:', !!window.katex);
+    
+    let html = '';
+    questions.forEach((question, index) => {
         let questionContent = this.extractQuestionContent(question.content);
         
-        // 如果有选项，将选项追加到内容后面
-        if (question.options && question.options.length > 0) {
-            // 选项已经在后端被剥离，需要重新添加
-            // 选项格式：['A. xxx', 'B. xxx', 'C. xxx', 'D. xxx']
-         // const optionsHtml = ' ' + question.options.join('  ');  // 两个 em 空格分隔
-           // questionContent += optionsHtml;
-         questionContent += '\n\n' + question.options.join('  ');
-       // questionContent += '<br>' + question.options.join('  ');
-        }
-    
-    html += `<div class="question-item">
-        <span class="question-number">${index + 1}.</span>
-        <div class="question-content">${this.escapeHtml(questionContent)}</div>
+        // 先只渲染题干（不包含选项）
+        html += `<div class="question-item" data-qidx="${index}">
+            <span class="question-number">${index + 1}.</span>
+            <div class="question-content">${this.escapeHtml(questionContent)}</div>
         </div>`;
-});
-
-
-
-        container.innerHTML = html;
-        
-        // 尝试使用 KaTeX 渲染公式，但即使失败也不影响题目显示
-        try {
-            // 使用 KaTeX auto-render 自动渲染所有公式
-            if (window.renderMathInElement && window.katex) {
-                console.log('使用 KaTeX auto-render 渲染公式');
-                renderMathInElement(container, {
-                    delimiters: [
-                        {left: '$$', right: '$$', display: true},
-                        {left: '$', right: '$', display: false},
-                        {left: '\\[', right: '\\]', display: true},
-                        {left: '\\(', right: '\\)', display: false}
-                    ],
-                    throwOnError: false
-                });
-            } else if (window.katex) {
-                console.log('使用 KaTeX 手动渲染公式');
-                // 降级方案：手动渲染
-                const questionContents = container.querySelectorAll('.question-content');
-                questionContents.forEach((element, index) => {
-                    if (index < questions.length) {
-                        const questionContent = this.extractQuestionContent(questions[index].content);
-                        try {
-                            // 处理题目中的数学公式
-                            let renderedContent = questionContent;
-                            
-                            // 渲染块级公式 ($$...$$) - 使用 [\s\S]*? 匹配包括换行符在内的所有字符
-                            renderedContent = renderedContent.replace(/\$\$([\s\S]*?)\$\$/g, (match, formula) => {
-                                try {
-                                    return window.katex.renderToString(formula, {
-                                        throwOnError: false,
-                                        displayMode: true
-                                    });
-                                } catch (e) {
-                                    return match;
-                                }
-                            });
-                            
-                            // 渲染块级公式 (\[...\]) - 使用 [\s\S]*? 匹配包括换行符在内的所有字符
-                            renderedContent = renderedContent.replace(/\\\[([\s\S]*?)\\\]/g, (match, formula) => {
-                                try {
-                                    return window.katex.renderToString(formula, {
-                                        throwOnError: false,
-                                        displayMode: true
-                                    });
-                                } catch (e) {
-                                    return match;
-                                }
-                            });
-                            
-                            // 渲染行内公式 ($...$) - 使用 [^$]*? 匹配不包含 $ 的内容，避免匹配到块级公式
-                            renderedContent = renderedContent.replace(/\$([^$]*?)\$/g, (match, formula) => {
-                                try {
-                                    return window.katex.renderToString(formula, {
-                                        throwOnError: false,
-                                        displayMode: false
-                                    });
-                                } catch (e) {
-                                    return match;
-                                }
-                            });
-                            
-                            // 设置渲染后的内容
-                            element.innerHTML = renderedContent;
-                        } catch (e) {
-                            console.error('设置题目内容错误:', e);
-                            // 即使渲染失败，也显示原始内容
-                            element.innerHTML = this.escapeHtml(questionContent);
-                        }
-                    }
-                });
-            } else {
-                console.warn('KaTeX 未加载，无法渲染公式');
+    });
+    
+    container.innerHTML = html;
+    
+    // 第一步：KaTeX 渲染题干中的公式
+    if (window.renderMathInElement) {
+        renderMathInElement(container, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false},
+                {left: '\\[', right: '\\]', display: true},
+                {left: '\\(', right: '\\)', display: false}
+            ],
+            throwOnError: false
+        });
+    } else if (window.katex) {
+        // 【保留降级方案】如果 auto-render 未加载，使用手动渲染
+        console.log('使用 KaTeX 手动渲染公式');
+        const questionContents = container.querySelectorAll('.question-content');
+        questionContents.forEach((element, idx) => {
+            if (idx < questions.length) {
+                const questionContent = this.extractQuestionContent(questions[idx].content);
+                try {
+                    let renderedContent = questionContent;
+                    renderedContent = renderedContent.replace(/\$\$([\s\S]*?)\$\$/g, (match, formula) => {
+                        try { return window.katex.renderToString(formula, { throwOnError: false, displayMode: true }); } catch (e) { return match; }
+                    });
+                    renderedContent = renderedContent.replace(/\\\[([\s\S]*?)\\\]/g, (match, formula) => {
+                        try { return window.katex.renderToString(formula, { throwOnError: false, displayMode: true }); } catch (e) { return match; }
+                    });
+                    renderedContent = renderedContent.replace(/\$([^$]*?)\$/g, (match, formula) => {
+                        try { return window.katex.renderToString(formula, { throwOnError: false, displayMode: false }); } catch (e) { return match; }
+                    });
+                    element.innerHTML = renderedContent;
+                } catch (e) {
+                    element.innerHTML = this.escapeHtml(questionContent);
+                }
             }
-        } catch (error) {
-            console.error('KaTeX 渲染失败:', error);
-            // 即使KaTeX渲染失败，也不影响题目显示
-        }
+        });
+    } else {
+        console.warn('KaTeX 未加载，无法渲染公式');
     }
+    
+    // 第二步：通过 DOM 操作添加选项（不会被转义）
+    questions.forEach((question, idx) => {
+        if (question.options && question.options.length > 0) {
+            const questionItem = container.querySelector(`.question-item[data-qidx="${idx}"]`);
+            if (questionItem) {
+                const contentDiv = questionItem.querySelector('.question-content');
+                if (contentDiv) {
+                    // 创建换行元素
+                    const br = document.createElement('br');
+                    contentDiv.appendChild(br);
+                    
+                    // 创建选项容器
+                    const optionsSpan = document.createElement('span');
+                    optionsSpan.className = 'question-options';
+                    optionsSpan.innerHTML = ' ' + question.options.join('  ');
+                    contentDiv.appendChild(optionsSpan);
+                    
+                    // 第三步：单独渲染选项中的公式
+                    if (window.renderMathInElement) {
+                        renderMathInElement(optionsSpan, {
+                            delimiters: [
+                                {left: '$', right: '$', display: false},
+                                {left: '\\(', right: '\\)', display: false}
+                            ],
+                            throwOnError: false
+                        });
+                    } else if (window.katex) {
+                        // 降级：手动渲染选项中的公式
+                        let optContent = optionsSpan.innerHTML;
+                        optContent = optContent.replace(/\$([^$]*?)\$/g, (match, formula) => {
+                            try { return window.katex.renderToString(formula, { throwOnError: false, displayMode: false }); } catch (e) { return match; }
+                        });
+                        optionsSpan.innerHTML = optContent;
+                    }
+                }
+            }
+        }
+    });
+}
     
     // 添加一个辅助方法转义HTML
     escapeHtml(text) {
