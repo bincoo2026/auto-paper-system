@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数学题目编辑器 - 使用 aarkue 公式扩展</title>
+  
+  <!-- 1. 引入 KaTeX CSS (公式渲染必需) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  
+  <style>
+    /* 页面基础样式 */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fa; padding: 24px;
+    }
+    .container {
+      max-width: 900px; margin: 0 auto; background: white;
+      border-radius: 12px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h2 { margin-bottom: 8px; color: #1a1a2e; }
+    .subtitle {
+      color: #64748b; margin-bottom: 20px; padding-bottom: 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .subtitle code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; }
+    
+    /* 编辑器卡片 */
+    .editor-section {
+      margin-bottom: 24px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;
+    }
+    .section-header {
+      background: #f8fafc; padding: 10px 16px; border-bottom: 1px solid #e2e8f0;
+      font-weight: 600; color: #334155;
+    }
+    .required { color: #ef4444; margin-left: 4px; }
+    
+    /* Tiptap 编辑器主体 */
+    .editor-content {
+      padding: 16px; min-height: 120px; background: white; outline: none;
+      line-height: 1.6; font-size: 15px;
+    }
+    .editor-content:focus { box-shadow: inset 0 0 0 2px #4f46e5; }
+    .editor-content p { margin-bottom: 12px; }
+    
+    /* 工具栏 */
+    .toolbar {
+      padding: 8px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0;
+      display: flex; gap: 8px;
+    }
+    button {
+      padding: 6px 12px; background: white; border: 1px solid #cbd5e1;
+      border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500;
+      color: #475569; transition: all 0.15s;
+    }
+    button:hover { background: #eef2ff; border-color: #4f46e5; color: #4f46e5; }
+    
+    /* 导出区域 */
+    .export-bar { margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+    .export-buttons { display: flex; gap: 8px; margin-bottom: 16px; }
+    pre {
+      background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 8px;
+      overflow: auto; max-height: 250px; font-size: 12px; white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📐 数学题目编辑器</h2>
+    <div class="subtitle">
+      ✅ 输入 <code>$E=mc^2$</code> 自动渲染 · 光标前按 <strong>Backspace</strong> 切源码
+    </div>
+    
+    <!-- 题干编辑器 -->
+    <div class="editor-section">
+      <div class="section-header">📝 题干 <span class="required">*</span></div>
+      <div id="editor-stem" class="editor-content"></div>
+      <div class="toolbar">
+        <button data-editor="stem" data-action="inline">➕ 行内公式</button>
+        <button data-editor="stem" data-action="block">📐 块级公式</button>
+      </div>
+    </div>
+    
+    <!-- 答案编辑器 -->
+    <div class="editor-section">
+      <div class="section-header">✅ 答案 <span class="required">*</span></div>
+      <div id="editor-answer" class="editor-content"></div>
+      <div class="toolbar">
+        <button data-editor="answer" data-action="inline">➕ 行内公式</button>
+        <button data-editor="answer" data-action="block">📐 块级公式</button>
+      </div>
+    </div>
+    
+    <!-- 解析编辑器 -->
+    <div class="editor-section">
+      <div class="section-header">💡 解析 <span style="font-weight:400;">(选填)</span></div>
+      <div id="editor-analysis" class="editor-content"></div>
+      <div class="toolbar">
+        <button data-editor="analysis" data-action="inline">➕ 行内公式</button>
+        <button data-editor="analysis" data-action="block">📐 块级公式</button>
+      </div>
+    </div>
+    
+    <!-- 导出区域 -->
+    <div class="export-bar">
+      <div style="font-weight:600; margin-bottom:12px;">📤 导出数据</div>
+      <div class="export-buttons">
+        <button id="export-html">导出 HTML</button>
+        <button id="export-text">导出纯文本（保留 $ 定界符）</button>
+      </div>
+      <pre id="output">点击上方按钮查看导出结果</pre>
+    </div>
+  </div>
+
+  <!-- 2. 通过 CDN 引入依赖 (使用 ESM 方式，更稳定) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "@tiptap/core": "https://esm.sh/@tiptap/core@2.1.13",
+        "@tiptap/starter-kit": "https://esm.sh/@tiptap/starter-kit@2.1.13",
+        "@tiptap/extension-placeholder": "https://esm.sh/@tiptap/extension-placeholder@2.1.13",
+        "@aarkue/tiptap-math-extension": "https://esm.sh/@aarkue/tiptap-math-extension@1.2.0"
+      }
+    }
+  </script>
+
+  <script type="module">
+    // 使用 ESM 导入，确保命名空间正确
+    import { Editor } from '@tiptap/core';
+    import StarterKit from '@tiptap/starter-kit';
+    import { Placeholder } from '@tiptap/extension-placeholder';
+    import { MathExtension } from '@aarkue/tiptap-math-extension';
+
+    // 存储三个编辑器实例
+    const editors = {};
+
+    // 通用的编辑器创建函数
+    function createEditor(elementId, placeholderText) {
+      const element = document.getElementById(elementId);
+      if (!element) return null;
+
+      return new Editor({
+        element: element,
+        extensions: [
+          StarterKit,
+          Placeholder.configure({ placeholder: placeholderText }),
+          MathExtension.configure({
+            // 可以根据需要开启 evaluation
+            evaluation: false,
+            delimiters: 'dollar',     // 使用 $...$ 和 $$...$$
+            renderTextMode: 'raw-latex', // 导出纯文本时输出不带定界符的源码
+            katexOptions: {
+              throwOnError: false,
+              macros: { '\\RR': '\\mathbb{R}', '\\NN': '\\mathbb{N}' }
+            }
+          })
+        ],
+        content: '',
+        editable: true,
+      });
+    }
+
+    // 初始化三个编辑器
+    editors.stem = createEditor('editor-stem', '请输入题干，输入 $E=mc^2$ 试试...');
+    editors.answer = createEditor('editor-answer', '请输入答案...');
+    editors.analysis = createEditor('editor-analysis', '请输入解析（选填）...');
+
+    // 等待编辑器完全准备好后，设置示例内容
+    setTimeout(() => {
+      // 题干示例
+      editors.stem?.commands.setContent(`
+        <p>已知二次函数 $f(x) = ax^2 + bx + c\\ (a \\neq 0)$ 的图像经过点 $(0, 1)$ 和 $(1, 0)$，且对称轴为直线 $x = 2$。</p>
+        <p>（1）求该二次函数的解析式；</p>
+        <p>（2）当 $x$ 为何值时，函数值 $y > 0$？</p>
+      `);
+      
+      // 答案示例
+       editors.answer?.commands.setContent(`
+  <p><strong>解：</strong></p>
+  <p>1. 设二次函数为 $f(x) = a(x-2)^2 + kx$</p>
+  <p>代入点 (0,1): $4a + k = 1$</p>
+  <p>代入点 (1,0): $a + k = 0$</p>
+  <p>解得：$a = \\frac{1}{3}, k = -\\frac{1}{3}$</p>
+  <p>$f(x) = \\frac{1}{3}x^2 - \\frac{1}{3}x + 1$</p>
+  <p>2. 令 $f(x) > 0$，解得 $x < 1$ 或 $x > 3$</p>
+`);
+      
+      // 解析示例
+      editors.analysis?.commands.setContent(`
+        <p><strong>思路分析：</strong>本题考查二次函数解析式的求法及不等式解法。</p>
+        $$\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}$$
+        <p>试试输入 $\\sqrt{2}$ 或 $$\\sum_{i=1}^n i^2$$！</p>
+      `);
+      
+    }, 200);
+
+    // ---------- 工具栏按钮逻辑 ----------
+    document.querySelectorAll('.toolbar button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const editorId = btn.dataset.editor;
+        const action = btn.dataset.action;
+        const editor = editors[editorId];
+        if (!editor) return;
+
+        // 插入空公式并聚焦
+        if (action === 'inline') {
+          editor.commands.insertContent({
+            type: 'mathInline',
+            attrs: { latex: '' }
+          });
+        } else if (action === 'block') {
+          editor.commands.insertContent({
+            type: 'mathBlock',
+            attrs: { latex: '' }
+          });
+        }
+        editor.commands.focus();
+      });
+    });
+
+    // ---------- 导出功能 ----------
+    const outputEl = document.getElementById('output');
+    
+    // 1. 导出 HTML
+    document.getElementById('export-html').addEventListener('click', () => {
+      const result = {
+        stem: editors.stem?.getHTML() || '',
+        answer: editors.answer?.getHTML() || '',
+        analysis: editors.analysis?.getHTML() || ''
+      };
+      outputEl.textContent = JSON.stringify(result, null, 2);
+    });
+
+    // 2. 导出纯文本 (手动拼接以保留 $ 定界符)
+    document.getElementById('export-text').addEventListener('click', () => {
+      function extractTextWithDelimiters(editor) {
+        if (!editor) return '';
+        let text = '';
+        editor.state.doc.descendants((node) => {
+          if (node.type.name === 'text') {
+            text += node.text;
+          } else if (node.type.name === 'mathInline') {
+            // 行内公式：加上 $...$
+            text += `$${node.attrs.latex || ''}$`;
+          } else if (node.type.name === 'mathBlock') {
+            // 块级公式：加上 $$...$$
+            text += `\n\n$$\n${node.attrs.latex || ''}\n$$\n\n`;
+          } else if (node.type.name === 'paragraph' && text && !text.endsWith('\n')) {
+            text += '\n';
+          }
+          return true;
+        });
+        return text.trim();
+      }
+      
+      const result = `【题干】\n${extractTextWithDelimiters(editors.stem)}\n\n【答案】\n${extractTextWithDelimiters(editors.answer)}\n\n【解析】\n${extractTextWithDelimiters(editors.analysis)}`;
+      outputEl.textContent = result;
+    });
+
+    // 清理: 页面卸载时销毁编辑器
+    window.addEventListener('beforeunload', () => {
+      Object.values(editors).forEach(editor => editor?.destroy());
+    });
+    
+    console.log('✅ 编辑器初始化完成，已集成 @aarkue/tiptap-math-extension');
+  </script>
+</body>
+</html>

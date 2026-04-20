@@ -588,6 +588,101 @@ extractChapterOrder(chapterName) {
         });
     }
     
+
+    
+    // 更新导出数据
+    updateExportData() {
+        const editors = window.editorInstances;
+        if (!editors || !editors.stemEditor || !editors.answerEditor || !editors.analysisEditor) {
+            return;
+        }
+        
+        try {
+            // 获取编辑器内容
+            const stemContent = editors.stemEditor.getHTML();
+            const answerContent = editors.answerEditor.getHTML();
+            const analysisContent = editors.analysisEditor.getHTML();
+            
+            // 转换为纯文本，保留 $ 定界符
+            const stemText = this.htmlToPlainText(stemContent);
+            const answerText = this.htmlToPlainText(answerContent);
+            const analysisText = this.htmlToPlainText(analysisContent);
+            
+            // 构建完整的题目文本
+            let exportText = stemText;
+            if (answerText) {
+                exportText += '\n答案：' + answerText;
+            }
+            if (analysisText) {
+                exportText += '\n解析：' + analysisText;
+            }
+            
+            // 更新导出数据区域
+            const exportDataElement = document.getElementById('export-data');
+            if (exportDataElement) {
+                exportDataElement.textContent = exportText;
+            }
+        } catch (error) {
+            console.error('更新导出数据失败:', error);
+        }
+    }
+    
+    // HTML转纯文本，保留 $ 定界符
+    htmlToPlainText(html) {
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+        return temp.textContent || temp.innerText || '';
+    }
+    
+    // 打开编辑对话框
+    async openEditModal(questionIndex, question) {
+        try {
+            // 显示加载提示
+            this.showMessage('正在加载编辑器，请稍候...', 'info');
+            
+            // 懒加载编辑器
+            const editors = await window.loadEditors();
+            
+            if (!editors || !editors.stemEditor || !editors.answerEditor || !editors.analysisEditor) {
+                this.showMessage('编辑器初始化失败，无法编辑题目', 'error');
+                return;
+            }
+            
+            // 填充编辑器内容
+            editors.stemEditor.commands.setContent(this.escapeHtml(question.content));
+            editors.answerEditor.commands.setContent(this.escapeHtml(question.answer || ''));
+            editors.analysisEditor.commands.setContent(this.escapeHtml(question.analysis || ''));
+            
+            // 显示对话框
+            const modal = document.getElementById('question-edit-modal');
+            if (modal) {
+                modal.style.display = 'block';
+            }
+            
+            // 更新导出数据
+            this.updateExportData();
+            
+            // 为编辑器添加更新事件监听器
+            editors.stemEditor.on('update', () => this.updateExportData());
+            editors.answerEditor.on('update', () => this.updateExportData());
+            editors.analysisEditor.on('update', () => this.updateExportData());
+            
+            // 关闭加载提示
+            this.showMessage('编辑器加载成功', 'success');
+        } catch (error) {
+            console.error('打开编辑对话框失败:', error);
+            this.showMessage('打开编辑对话框失败，请刷新页面重试', 'error');
+        }
+    }
+    
+    // 关闭编辑对话框
+    closeEditModal() {
+        const modal = document.getElementById('question-edit-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+    
     async getTopicQuestions(key) {
         try {
             console.log('获取题目数据开始:', key);
@@ -640,10 +735,21 @@ extractChapterOrder(chapterName) {
         html += `<div class="question-item" data-qidx="${index}">
             <span class="question-number">${index + 1}.</span>
             <div class="question-content">${this.escapeHtml(questionContent)}</div>
+            <button class="edit-button" data-question-index="${index}">编辑</button>
         </div>`;
     });
     
     container.innerHTML = html;
+    
+    // 为编辑按钮绑定点击事件
+    container.querySelectorAll('.edit-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const questionIndex = parseInt(button.dataset.questionIndex);
+            const question = questions[questionIndex];
+            this.openEditModal(questionIndex, question);
+        });
+    });
     
     // 第一步：KaTeX 渲染题干中的公式
     if (window.renderMathInElement) {
@@ -2023,6 +2129,13 @@ extractChapterOrder(chapterName) {
             });
         });
         
+        // 编辑对话框关闭按钮
+        document.querySelectorAll('#question-edit-modal .modal-close, #edit-modal-close').forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.closeEditModal();
+            });
+        });
+        
         document.addEventListener('keydown', (e) => {
             if (e.ctrlKey && e.key === 's') {
                 e.preventDefault();
@@ -2034,6 +2147,7 @@ extractChapterOrder(chapterName) {
                 document.getElementById('message-modal').classList.remove('show');
                 document.getElementById('user-manage-modal').classList.remove('show');
                 document.getElementById('template-manage-modal').classList.remove('show');
+                this.closeEditModal();
             }
         });
     }

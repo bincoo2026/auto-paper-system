@@ -13,6 +13,75 @@
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <!-- KaTeX auto-render 扩展 -->
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+    
+    <!-- tiptap 样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/@tiptap/extension-mention@2/style.css" />
+    
+    <!-- Tiptap ESM 依赖 -->
+    <script type="importmap">
+      {
+        "imports": {
+          "@tiptap/core": "https://esm.sh/@tiptap/core@2.1.13",
+          "@tiptap/starter-kit": "https://esm.sh/@tiptap/starter-kit@2.1.13",
+          "@aarkue/tiptap-math-extension": "https://esm.sh/@aarkue/tiptap-math-extension@1.2.0"
+        }
+      }
+    </script>
+    <style>
+      .tiptap {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px;
+        min-height: 100px;
+        margin-bottom: 10px;
+      }
+      .tiptap:focus {
+        outline: none;
+        border-color: #3b82f6;
+      }
+      .editor-section {
+        margin-bottom: 20px;
+      }
+      .editor-section label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      .export-section {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #ddd;
+      }
+      .export-data {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px;
+        min-height: 100px;
+        background-color: #f9fafb;
+        font-family: monospace;
+        white-space: pre-wrap;
+      }
+      .question-item {
+        position: relative;
+        padding-right: 80px;
+      }
+      .edit-button {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .edit-button:hover {
+        background-color: #2563eb;
+      }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -308,7 +377,174 @@
         </div>
     </div>
 </div>
+
+<!-- 题目编辑模态框 -->
+<div id="question-edit-modal" class="modal">
+    <div class="modal-content modal-lg" style="max-width: 900px;">
+        <div class="modal-header">
+            <h3>编辑题目</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- 题干编辑器 -->
+            <div class="editor-section">
+                <label>题干</label>
+                <div id="question-stem-editor" class="tiptap"></div>
+                <div class="toolbar">
+                    <button data-editor="stem" data-action="inline">➕ 行内公式</button>
+                    <button data-editor="stem" data-action="block">📐 块级公式</button>
+                </div>
+            </div>
+            
+            <!-- 答案编辑器 -->
+            <div class="editor-section">
+                <label>答案</label>
+                <div id="question-answer-editor" class="tiptap"></div>
+                <div class="toolbar">
+                    <button data-editor="answer" data-action="inline">➕ 行内公式</button>
+                    <button data-editor="answer" data-action="block">📐 块级公式</button>
+                </div>
+            </div>
+            
+            <!-- 解析编辑器 -->
+            <div class="editor-section">
+                <label>解析</label>
+                <div id="question-analysis-editor" class="tiptap"></div>
+                <div class="toolbar">
+                    <button data-editor="analysis" data-action="inline">➕ 行内公式</button>
+                    <button data-editor="analysis" data-action="block">📐 块级公式</button>
+                </div>
+            </div>
+            
+            <!-- 导出数据区域 -->
+            <div class="export-section">
+                <label>导出数据（纯文本，保留 $ 定界符）</label>
+                <div id="export-data" class="export-data"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="edit-modal-close" class="btn btn-primary">关闭</button>
+        </div>
+    </div>
+</div>
     
     <script src="js/main.js"></script>
+    
+    <!-- 编辑器懒加载脚本 -->
+    <script>
+      // 存储编辑器实例
+      window.editorInstances = {
+        stemEditor: null,
+        answerEditor: null,
+        analysisEditor: null,
+        initialized: false,
+        loading: false
+      };
+
+      // 懒加载编辑器
+      window.loadEditors = async function() {
+        if (window.editorInstances.initialized) {
+          return Promise.resolve(window.editorInstances);
+        }
+
+        if (window.editorInstances.loading) {
+          return new Promise(resolve => {
+            const checkInterval = setInterval(() => {
+              if (window.editorInstances.initialized || !window.editorInstances.loading) {
+                clearInterval(checkInterval);
+                resolve(window.editorInstances);
+              }
+            }, 100);
+          });
+        }
+
+        window.editorInstances.loading = true;
+
+        try {
+          // 动态加载 ESM 模块
+          const module = await import('data:text/javascript,' + encodeURIComponent(`
+            import { Editor } from '@tiptap/core';
+            import StarterKit from '@tiptap/starter-kit';
+            import { MathExtension } from '@aarkue/tiptap-math-extension';
+
+            // 通用的编辑器创建函数
+            function createEditor(elementId, placeholderText) {
+              const element = document.getElementById(elementId);
+              if (!element) return null;
+
+              return new Editor({
+                element: element,
+                extensions: [
+                  StarterKit,
+                  MathExtension.configure({
+                    evaluation: false,
+                    delimiters: 'dollar',
+                    renderTextMode: 'raw-latex',
+                    katexOptions: {
+                      throwOnError: false,
+                      macros: { '\\RR': '\\mathbb{R}', '\\NN': '\\mathbb{N}' }
+                    }
+                  })
+                ],
+                content: '',
+                editable: true,
+              });
+            }
+
+            // 初始化三个编辑器
+            const stemEditor = createEditor('question-stem-editor', '请输入题干，输入 $E=mc^2$ 试试...');
+            const answerEditor = createEditor('question-answer-editor', '请输入答案...');
+            const analysisEditor = createEditor('question-analysis-editor', '请输入解析（选填）...');
+
+            // 工具栏按钮逻辑
+            document.querySelectorAll('.toolbar button').forEach(btn => {
+              btn.addEventListener('click', () => {
+                const editorId = btn.dataset.editor;
+                const action = btn.dataset.action;
+                let editor;
+                
+                if (editorId === 'stem') {
+                  editor = stemEditor;
+                } else if (editorId === 'answer') {
+                  editor = answerEditor;
+                } else if (editorId === 'analysis') {
+                  editor = analysisEditor;
+                }
+                
+                if (!editor) return;
+
+                // 插入空公式并聚焦
+                if (action === 'inline') {
+                  editor.commands.insertContent({
+                    type: 'mathInline',
+                    attrs: { latex: '' }
+                  });
+                } else if (action === 'block') {
+                  editor.commands.insertContent({
+                    type: 'mathBlock',
+                    attrs: { latex: '' }
+                  });
+                }
+                editor.commands.focus();
+              });
+            });
+
+            export { stemEditor, answerEditor, analysisEditor };
+          `));
+
+          window.editorInstances.stemEditor = module.stemEditor;
+          window.editorInstances.answerEditor = module.answerEditor;
+          window.editorInstances.analysisEditor = module.analysisEditor;
+          window.editorInstances.initialized = true;
+          console.log('🎉 Tiptap 编辑器初始化完成，已集成数学公式扩展');
+        } catch (error) {
+          console.error('❌ 编辑器初始化失败:', error);
+        } finally {
+          window.editorInstances.loading = false;
+        }
+
+        return window.editorInstances;
+      };
+    </script>
 </body>
 </html>
