@@ -20,6 +20,7 @@ class PaperComposer {
         this.modalTimeout = null; // 添加模态框定时器引用
         this.currentUser = null; // 当前用户信息
         this.templateManageModal = null; // 模板管理模态框
+        this.currentQuestionPath = ''; // 当前题目路径
         
         // 初始化
         this.init();
@@ -571,7 +572,10 @@ extractChapterOrder(chapterName) {
                             
                             // 渲染题目
                             console.log('渲染题目:', questions.length);
-                            await this.renderTopicQuestions(questionsContent, questions);
+                            // 从key中提取题型信息
+                            const parts = key.split('/');
+                            const questionType = parts[1] || '未知题型';
+                            await this.renderTopicQuestions(questionsContent, questions, questionType);
                             
                             // 显示题目预览
                             questionsContainer.style.display = 'block';
@@ -604,7 +608,7 @@ extractChapterOrder(chapterName) {
             const analysisContent = editors.analysisEditor.getHTML();
             
             // 转换为纯文本，保留 $ 定界符
-            const stemText = this.htmlToPlainText(stemContent);
+            let stemText = this.htmlToPlainText(stemContent);
             const answerText = this.htmlToPlainText(answerContent);
             const analysisText = this.htmlToPlainText(analysisContent);
             
@@ -631,15 +635,17 @@ extractChapterOrder(chapterName) {
     htmlToPlainText(html) {
         const temp = document.createElement('div');
         temp.innerHTML = html;
+        // 处理 br 标签为换行符
+        const brElements = temp.querySelectorAll('br');
+        brElements.forEach(br => {
+            br.replaceWith('\n');
+        });
         return temp.textContent || temp.innerText || '';
     }
     
     // 打开编辑对话框
-    async openEditModal(questionIndex, question) {
+    async openEditModal(questionIndex, question, questionType) {
         try {
-            // 显示加载提示
-            this.showMessage('正在加载编辑器，请稍候...', 'info');
-            
             // 懒加载编辑器
             const editors = await window.loadEditors();
             
@@ -648,8 +654,20 @@ extractChapterOrder(chapterName) {
                 return;
             }
             
+            // 显示题型信息
+            const typeDisplay = document.getElementById('question-type-display');
+            if (typeDisplay) {
+                typeDisplay.textContent = questionType || question.type || '未知题型';
+            }
+            
+            // 构建题干内容，对于选择题需要添加选项
+            let stemContent = question.content;
+            if (questionType === '选择题' && question.options && question.options.length > 0) {
+                stemContent += '<br>' + question.options.join('<br>');
+            }
+            
             // 填充编辑器内容
-            editors.stemEditor.commands.setContent(this.escapeHtml(question.content));
+            editors.stemEditor.commands.setContent(stemContent);
             editors.answerEditor.commands.setContent(this.escapeHtml(question.answer || ''));
             editors.analysisEditor.commands.setContent(this.escapeHtml(question.analysis || ''));
             
@@ -667,8 +685,17 @@ extractChapterOrder(chapterName) {
             editors.answerEditor.on('update', () => this.updateExportData());
             editors.analysisEditor.on('update', () => this.updateExportData());
             
-            // 关闭加载提示
-            this.showMessage('编辑器加载成功', 'success');
+            // 为保存按钮添加点击事件监听器
+            const saveButton = document.getElementById('edit-modal-save');
+            if (saveButton) {
+                saveButton.onclick = () => this.saveQuestion();
+            }
+            
+            // 为关闭按钮添加点击事件监听器
+            const closeButton = document.getElementById('edit-modal-close');
+            if (closeButton) {
+                closeButton.onclick = () => this.closeEditModal();
+            }
         } catch (error) {
             console.error('打开编辑对话框失败:', error);
             this.showMessage('打开编辑对话框失败，请刷新页面重试', 'error');
@@ -680,6 +707,99 @@ extractChapterOrder(chapterName) {
         const modal = document.getElementById('question-edit-modal');
         if (modal) {
             modal.style.display = 'none';
+        }
+    }
+    
+    // 保存题目
+    async saveQuestion() {
+        try {
+            // 获取导出数据
+            const exportDataElement = document.getElementById('export-data');
+            if (!exportDataElement) {
+                this.showMessage('无法获取导出数据', 'error');
+                return;
+            }
+            
+            const questionContent = exportDataElement.textContent;
+            if (!questionContent) {
+                this.showMessage('题目内容不能为空', 'error');
+                return;
+            }
+            
+            console.log('保存题目 - currentQuestionPath:', this.currentQuestionPath);
+            console.log('保存题目 - questionContent:', questionContent);
+            
+            if (!this.currentQuestionPath) {
+                this.showMessage('题目路径无效，请重新打开编辑对话框', 'error');
+                return;
+            }
+            
+            // 显示加载提示
+            this.showMessage('正在保存题目，请稍候...', 'info');
+            
+            // 构建保存请求
+            const response = await fetch('/api/bank/save-question', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    content: questionContent,
+                    path: this.currentQuestionPath
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const result = await response.json();
+            if (result.success) {
+                this.showMessage('题目保存成功', 'success');
+                // 关闭对话框
+                this.closeEditModal();
+                // 刷新当前考点的题目
+                this.refreshCurrentTopic();
+            } else {
+                this.showMessage('题目保存失败: ' + (result.message || '未知错误'), 'error');
+            }
+        } catch (error) {
+            console.error('保存题目失败:', error);
+            this.showMessage('保存题目失败，请重试', 'error');
+        }
+    }
+    
+    // 刷新当前考点的题目
+    async refreshCurrentTopic() {
+        try {
+            // 获取当前考点的容器
+            const activeTopic = document.querySelector('.topic-item.active');
+            if (activeTopic) {
+                const key = activeTopic.dataset.key;
+                const questionsContainer = activeTopic.querySelector('.questions-container');
+                const questionsContent = activeTopic.querySelector('.questions-content');
+                
+                if (questionsContainer && questionsContent) {
+                    // 显示加载状态
+                    const previewBadge = activeTopic.querySelector('.preview-badge');
+                    if (previewBadge) {
+                        previewBadge.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    }
+                    
+                    // 重新加载题目
+                    const questions = await this.getTopicQuestions(key);
+                    await this.renderTopicQuestions(questionsContent, questions, key.split('/')[1]);
+                    
+                    // 保持展开状态
+                    questionsContainer.style.display = 'block';
+                    if (previewBadge) {
+                        previewBadge.innerHTML = '<i class="fas fa-chevron-up"></i>';
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('刷新题目失败:', error);
         }
     }
     
@@ -719,7 +839,7 @@ extractChapterOrder(chapterName) {
         }
     }
     
-    async renderTopicQuestions(container, questions) {
+    async renderTopicQuestions(container, questions, questionType) {
     if (!questions || questions.length === 0) {
         container.innerHTML = '<div class="empty-questions">该考点暂无题目</div>';
         return;
@@ -735,7 +855,7 @@ extractChapterOrder(chapterName) {
         html += `<div class="question-item" data-qidx="${index}">
             <span class="question-number">${index + 1}.</span>
             <div class="question-content">${this.escapeHtml(questionContent)}</div>
-            <button class="edit-button" data-question-index="${index}">编辑</button>
+            <button class="edit-button" data-question-index="${index}" data-question-type="${questionType}">编辑</button>
         </div>`;
     });
     
@@ -747,7 +867,21 @@ extractChapterOrder(chapterName) {
             e.stopPropagation();
             const questionIndex = parseInt(button.dataset.questionIndex);
             const question = questions[questionIndex];
-            this.openEditModal(questionIndex, question);
+            const questionType = button.dataset.questionType;
+            // 设置当前题目路径
+            const topicItem = button.closest('.topic-item');
+            console.log('编辑按钮点击 - topicItem:', topicItem);
+            if (topicItem) {
+                const key = topicItem.dataset.key;
+                console.log('编辑按钮点击 - key:', key);
+                const parts = key.split('/');
+                if (parts.length >= 4) {
+                    const [subject, qType, chapter, topic] = parts;
+                    this.currentQuestionPath = `${subject}/${qType}/${chapter}/${topic}.md`;
+                    console.log('编辑按钮点击 - currentQuestionPath:', this.currentQuestionPath);
+                }
+            }
+            this.openEditModal(questionIndex, question, questionType);
         });
     });
     

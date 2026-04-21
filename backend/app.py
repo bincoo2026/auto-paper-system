@@ -184,11 +184,6 @@ def update_user_role(user_id):
     else:
         return jsonify({'error': '更新角色失败'}), 400
 
-@app.route('/<path:path>')
-def serve_static(path):
-    """提供静态文件"""
-    return send_from_directory(app.static_folder, path)
-
 @app.route('/api/bank/structure')
 @login_required
 def get_bank_structure():
@@ -231,8 +226,13 @@ def get_bank_structure():
                             
                             if chapter_data['topics']:
                                 structure[subject_name][type_name].append(chapter_data)
-    
+
     return jsonify(structure)
+
+@app.route('/<path:path>')
+def serve_static(path):
+    """提供静态文件"""
+    return send_from_directory(app.static_folder, path)
 
 @app.route('/api/bank/questions')
 @login_required
@@ -488,6 +488,55 @@ def get_subjects():
     
     subjects.sort(reverse=True)
     return jsonify({'subjects': subjects})
+
+@app.route('/api/bank/save-question', methods=['POST'])
+@login_required
+def save_question():
+    """保存题目"""
+    data = request.json
+    print(f"保存题目 - 请求数据: {data}")
+    if not data or 'content' not in data or 'path' not in data:
+        print(f"保存题目 - 错误: 缺少必要字段")
+        print(f"保存题目 - data: {data}")
+        print(f"保存题目 - content in data: {'content' in data if data else 'data is None'}")
+        print(f"保存题目 - path in data: {'path' in data if data else 'data is None'}")
+        return jsonify({'error': '缺少必要字段'}), 400
+    
+    content = data['content']
+    file_path = data['path']
+    
+    print(f"保存题目 - content: {content[:100] if content else 'None'}...")
+    print(f"保存题目 - path: {file_path}")
+    
+    user_id = session.get('user_id')
+    user_dir = Config.get_user_dir(user_id)
+    
+    print(f"保存题目 - user_id: {user_id}")
+    print(f"保存题目 - user_dir: {user_dir}")
+    
+    # 构建完整路径
+    full_path = user_dir / file_path
+    print(f"保存题目 - full_path: {full_path}")
+    
+    # 检查文件是否存在
+    if not full_path.exists():
+        print(f"保存题目 - 错误: 文件不存在")
+        return jsonify({'error': '文件不存在'}), 404
+    
+    if not full_path.is_file():
+        print(f"保存题目 - 错误: 无效的文件路径")
+        return jsonify({'error': '无效的文件路径'}), 400
+    
+    try:
+        # 保存题目内容
+        with open(full_path, 'w', encoding='utf-8') as f:
+            f.write(content)
+        
+        print(f"保存题目 - 成功保存到: {full_path}")
+        return jsonify({'success': True, 'message': '题目保存成功'})
+    except Exception as e:
+        print(f"保存题目失败: {e}")
+        return jsonify({'error': f'保存题目失败: {str(e)}'}), 500
 
 @app.route('/api/question-types')
 @login_required
