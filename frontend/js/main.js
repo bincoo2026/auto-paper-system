@@ -391,6 +391,9 @@ extractChapterOrder(chapterName) {
                 <h4>
                     <i class="fas fa-folder-open"></i> ${chapter.name}
                     <span class="chapter-count">${chapter.topics.length}个考点</span>
+                    <span class="add-topic-badge" title="新增考点" onclick="event.stopPropagation(); paperComposer.openAddTopicModal('${this.currentSubject}/${this.currentQuestionType}/${chapter.name}')">
+                        新增考点
+                    </span>
                 </h4>
                 <div class="topics-list" style="display: block;">`;
             
@@ -785,6 +788,121 @@ extractChapterOrder(chapterName) {
         } catch (error) {
             console.error('打开新增题目对话框失败:', error);
             this.showMessage('打开新增题目对话框失败，请刷新页面重试', 'error');
+        }
+    }
+    
+    // 打开新增考点对话框
+    openAddTopicModal(chapterKey) {
+        console.log('打开新增考点对话框 - chapterKey:', chapterKey);
+        
+        // 保存当前章节信息
+        this.currentChapterKey = chapterKey;
+        
+        // 清空输入框
+        const topicNameInput = document.getElementById('topic-name-input');
+        if (topicNameInput) {
+            topicNameInput.value = '';
+        }
+        
+        // 显示对话框
+        const modal = document.getElementById('add-topic-modal');
+        if (modal) {
+            modal.style.display = 'block';
+        }
+        
+        // 为确定按钮添加点击事件监听器
+        const confirmButton = document.getElementById('add-topic-confirm');
+        const self = this; // 保存 this 引用
+        if (confirmButton) {
+            confirmButton.onclick = () => self.addTopic();
+        }
+        
+        // 为取消按钮添加点击事件监听器
+        const cancelButton = document.getElementById('add-topic-cancel');
+        if (cancelButton) {
+            cancelButton.onclick = () => self.closeAddTopicModal();
+        }
+        
+        // 为关闭按钮添加点击事件监听器
+        const closeButton = document.querySelector('#add-topic-modal .modal-close');
+        if (closeButton) {
+            closeButton.onclick = () => self.closeAddTopicModal();
+        }
+    }
+    
+    // 关闭新增考点对话框
+    closeAddTopicModal() {
+        const modal = document.getElementById('add-topic-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+    
+    // 新增考点
+    async addTopic() {
+        const self = this;
+        try {
+            // 获取考点名称
+            const topicNameInput = document.getElementById('topic-name-input');
+            if (!topicNameInput) {
+                this.showMessage('无法获取考点名称输入框', 'error');
+                return;
+            }
+            
+            const topicName = topicNameInput.value.trim();
+            if (!topicName) {
+                this.showMessage('考点名称不能为空', 'error');
+                return;
+            }
+            
+            if (!this.currentChapterKey) {
+                this.showMessage('章节信息无效，请重新打开对话框', 'error');
+                return;
+            }
+            
+            // 显示加载提示
+            this.showMessage('正在创建考点，请稍候...', 'info');
+            
+            // 构建请求数据
+            const [subject, questionType, chapter] = this.currentChapterKey.split('/');
+            const data = {
+                subject: subject,
+                questionType: questionType,
+                chapter: chapter,
+                topicName: topicName
+            };
+            
+            console.log('新增考点 - 请求数据:', data);
+            
+            // 发送请求
+            const response = await fetch('/api/bank/add-topic', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify(data)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const result = await response.json();
+            console.log('新增考点 - 结果:', result);
+            
+            if (result.success) {
+                this.showMessage('考点创建成功', 'success');
+                // 关闭对话框
+                this.closeAddTopicModal();
+                // 重新加载题库结构
+                await this.loadBankStructure(this.currentSubject);
+            } else {
+                this.showMessage('考点创建失败: ' + (result.message || '未知错误'), 'error');
+            }
+        } catch (error) {
+            console.error('新增考点失败:', error);
+            this.showMessage('新增考点失败，请重试', 'error');
         }
     }
     

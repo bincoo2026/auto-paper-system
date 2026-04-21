@@ -572,6 +572,38 @@ def save_question():
         print(f"保存题目失败: {e}")
         return jsonify({'error': f'保存题目失败: {str(e)}'}), 500
 
+@app.route('/api/bank/add-topic', methods=['POST'])
+@login_required
+def add_topic():
+    """新增考点"""
+    try:
+        data = request.json
+        subject = data.get('subject')
+        questionType = data.get('questionType')
+        chapter = data.get('chapter')
+        topicName = data.get('topicName')
+        
+        if not all([subject, questionType, chapter, topicName]):
+            return jsonify({'error': '缺少必要参数'}), 400
+        
+        user_id = session.get('user_id')
+        user_dir = Config.get_user_dir(user_id)
+        
+        # 构建考点文件路径
+        topic_file_path = user_dir / subject / questionType / chapter / f"{topicName}.md"
+        
+        # 确保目录存在
+        topic_file_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # 创建空的考点文件
+        topic_file_path.touch(exist_ok=True)
+        
+        print(f"新增考点 - 成功创建: {topic_file_path}")
+        return jsonify({'success': True, 'message': '考点创建成功'})
+    except Exception as e:
+        print(f"新增考点失败: {e}")
+        return jsonify({'error': f'新增考点失败: {str(e)}'}), 500
+
 @app.route('/api/question-types')
 @login_required
 def get_question_types():

@@ -124,6 +124,22 @@
         color: #218838;
         text-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
       }
+      
+      .add-topic-badge {
+        margin-left: 10px;
+        color: #17a2b8;
+        cursor: pointer;
+        font-size: 12px;
+        vertical-align: middle;
+        padding: 2px 6px;
+        background-color: #e3f2fd;
+        border-radius: 4px;
+      }
+      
+      .add-topic-badge:hover {
+        color: #138496;
+        background-color: #bbdefb;
+      }
     </style>
 </head>
 <body>
@@ -592,5 +608,25 @@
         return window.editorInstances;
       };
     </script>
+    
+    <!-- 新增考点对话框 -->
+    <div id="add-topic-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>新增考点</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-section">
+                    <label>考点名称</label>
+                    <input type="text" id="topic-name-input" placeholder="请输入考点名称" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="add-topic-cancel" class="btn btn-secondary">取消</button>
+                <button id="add-topic-confirm" class="btn btn-primary">确定</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
