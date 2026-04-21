@@ -926,7 +926,15 @@ extractChapterOrder(chapterName) {
                     previewBadge.innerHTML = '<i class="fas fa-chevron-up"></i>';
                 }
                 
+                // 更新考点的题目数量显示
+                const countBadge = topicItem.querySelector('.count-badge');
+                if (countBadge) {
+                    countBadge.textContent = `共${questions.length}题`;
+                    countBadge.title = `共${questions.length}题`;
+                }
+                
                 console.log('刷新题目 - 成功');
+                console.log('刷新题目 - 新题目数量:', questions.length);
             }
         } catch (error) {
             console.error('刷新题目失败:', error);
