@@ -5,7 +5,7 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 import shutil
 import hashlib
-from backend.config import Config
+from config import Config
 
 class UserManager:
     """用户管理器"""

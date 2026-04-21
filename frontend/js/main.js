@@ -425,8 +425,8 @@ extractChapterOrder(chapterName) {
                                    max="${topic.count}" 
                                    value="${selection.count}"
                                    placeholder="0"
-                                   title="选题数量 (0-${topic.count})">
-                        </div>
+                                   title="选题数量 (0-${topic.count})"
+                                   ${topic.count === 0 ? 'disabled' : ''}></div>
                         <div class="input-group">
                             <label class="input-label">赋分</label>
                             <input type="number"
@@ -435,8 +435,8 @@ extractChapterOrder(chapterName) {
                                    step="2"
                                    value="${selection.score}"
                                    placeholder="0"
-                                   title="该考点题目总分">
-                        </div>
+                                   title="该考点题目总分"
+                                   ${topic.count === 0 ? 'disabled' : ''}></div>
                     </div>
                     <div class="topic-questions" style="display: none;">
                         <div class="topic-questions-content"></div>

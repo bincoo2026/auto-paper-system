@@ -5,7 +5,7 @@ from datetime import datetime
 import random
 import hashlib
 import time
-from backend.question_parser import QuestionParser
+from question_parser import QuestionParser
 
 # 尝试导入pypandoc，如果失败则提供降级处理
 try:

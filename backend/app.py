@@ -5,10 +5,10 @@ import os
 import zipfile
 import tempfile
 import functools
-from backend.config import Config
-from backend.user_manager import UserManager
-from backend.question_parser import QuestionParser
-from backend.paper_generator import PaperGenerator
+from config import Config
+from user_manager import UserManager
+from question_parser import QuestionParser
+from paper_generator import PaperGenerator
 
 # 初始化配置
 Config.init_dirs()
@@ -217,12 +217,11 @@ def get_bank_structure():
                             # 扫描考点文件
                             for topic_file in chapter.glob("*.md"):
                                 count = QuestionParser.count_questions_in_file(topic_file)
-                                if count > 0:
-                                    chapter_data['topics'].append({
-                                        'name': topic_file.stem,
-                                        'file_path': str(topic_file.relative_to(Config.BANK_ROOT)).replace('\\', '/'),
-                                        'count': count
-                                    })
+                                chapter_data['topics'].append({
+                                    'name': topic_file.stem,
+                                    'file_path': str(topic_file.relative_to(Config.BANK_ROOT)).replace('\\', '/'),
+                                    'count': count
+                                })
                             
                             if chapter_data['topics']:
                                 structure[subject_name][type_name].append(chapter_data)
