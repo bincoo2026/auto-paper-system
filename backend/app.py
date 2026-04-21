@@ -537,13 +537,22 @@ def save_question():
         print(f"保存题目 - 原文件题目数量: {len(questions)}")
         print(f"保存题目 - 要替换的题目索引: {question_index}")
         
-        # 检查索引是否有效
-        if question_index < 0 or question_index >= len(questions):
-            print(f"保存题目 - 错误: 题目索引无效")
-            return jsonify({'error': '题目索引无效'}), 400
-        
-        # 替换对应题目的内容
-        questions[question_index] = content.strip()
+        if question_index >= 0:
+            # 检查索引是否有效
+            if question_index >= len(questions):
+                print(f"保存题目 - 错误: 题目索引无效")
+                return jsonify({'error': '题目索引无效'}), 400
+            
+            # 替换对应题目的内容
+            questions[question_index] = content.strip()
+        else:
+            # 新增题目，添加到文件最后
+            if questions:
+                # 如果文件不为空，添加分割线
+                questions.append(content.strip())
+            else:
+                # 如果文件为空，直接添加
+                questions = [content.strip()]
         
         # 重新组合文件内容
         new_content = '\n\n---\n\n'.join(questions)

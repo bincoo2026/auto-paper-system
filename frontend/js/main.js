@@ -409,6 +409,9 @@ extractChapterOrder(chapterName) {
                         <span class="preview-badge" title="点击查看题目">
                             <i class="fas fa-chevron-down"></i>
                         </span>
+                        <span class="add-question-badge" title="新增题目" onclick="event.stopPropagation(); paperComposer.openAddQuestionModal('${key}')">
+                            新建
+                        </span>
                     </div>
                     <div class="topic-controls">
                         <div class="input-group">
@@ -714,6 +717,77 @@ extractChapterOrder(chapterName) {
         }
     }
     
+    // 打开新增题目对话框
+    async openAddQuestionModal(key) {
+        console.log('打开新增题目对话框 - key:', key);
+        try {
+            // 解析key以获取题目类型
+            const parts = key.split('/');
+            if (parts.length < 4) {
+                this.showMessage('无效的考点key', 'error');
+                return;
+            }
+            
+            const [subject, questionType, chapter, topic] = parts;
+            console.log('新增题目 - 题目类型:', questionType);
+            
+            // 懒加载编辑器
+            const editors = await window.loadEditors();
+            
+            if (!editors || !editors.stemEditor || !editors.answerEditor || !editors.analysisEditor) {
+                this.showMessage('编辑器初始化失败，无法编辑题目', 'error');
+                return;
+            }
+            
+            // 显示题型信息
+            const typeDisplay = document.getElementById('question-type-display');
+            if (typeDisplay) {
+                typeDisplay.textContent = questionType;
+            }
+            
+            // 清空编辑器内容
+            editors.stemEditor.commands.setContent('');
+            editors.answerEditor.commands.setContent('');
+            editors.analysisEditor.commands.setContent('');
+            
+            // 显示对话框
+            const modal = document.getElementById('question-edit-modal');
+            if (modal) {
+                modal.style.display = 'block';
+            }
+            
+            // 更新导出数据
+            this.updateExportData();
+            
+            // 为编辑器添加更新事件监听器
+            editors.stemEditor.on('update', () => this.updateExportData());
+            editors.answerEditor.on('update', () => this.updateExportData());
+            editors.analysisEditor.on('update', () => this.updateExportData());
+            
+            // 保存当前考点信息，用于后续保存
+            this.currentQuestionPath = `${subject}/${questionType}/${chapter}/${topic}.md`;
+            this.currentQuestionIndex = -1; // -1 表示新增题目
+            
+            // 为保存按钮添加点击事件监听器
+            const saveButton = document.getElementById('edit-modal-save');
+            const self = this; // 保存 this 引用
+            if (saveButton) {
+                saveButton.onclick = async () => {
+                    await self.saveQuestion();
+                };
+            }
+            
+            // 为关闭按钮添加点击事件监听器
+            const closeButton = document.getElementById('edit-modal-close');
+            if (closeButton) {
+                closeButton.onclick = () => self.closeEditModal();
+            }
+        } catch (error) {
+            console.error('打开新增题目对话框失败:', error);
+            this.showMessage('打开新增题目对话框失败，请刷新页面重试', 'error');
+        }
+    }
+    
     // 保存题目
     async saveQuestion() {
         const self = this; // 保存 this 引用
@@ -741,7 +815,7 @@ extractChapterOrder(chapterName) {
                 return;
             }
             
-            if (self.currentQuestionIndex < 0) {
+            if (self.currentQuestionIndex < -1) {
                 self.showMessage('题目索引无效，请重新打开编辑对话框', 'error');
                 return;
             }
