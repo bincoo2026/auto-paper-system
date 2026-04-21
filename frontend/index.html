@@ -125,20 +125,73 @@
         text-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
       }
       
-      .add-topic-badge {
+      .add-topic-button {
         margin-left: 10px;
-        color: #17a2b8;
+        padding: 4px 12px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 4px;
         cursor: pointer;
         font-size: 12px;
+        transition: background-color 0.3s;
         vertical-align: middle;
-        padding: 2px 6px;
-        background-color: #e3f2fd;
-        border-radius: 4px;
       }
       
-      .add-topic-badge:hover {
-        color: #138496;
-        background-color: #bbdefb;
+      .add-topic-button:hover {
+        background-color: #218838;
+      }
+      
+      /* 新增考点对话框样式 */
+      .add-topic-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+      }
+      
+      .add-topic-modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 300px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      }
+      
+      .add-topic-modal-header {
+        margin-bottom: 20px;
+        text-align: center;
+      }
+      
+      .add-topic-modal-body {
+        margin-bottom: 20px;
+      }
+      
+      .add-topic-modal-body input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      
+      .add-topic-modal-footer {
+        text-align: right;
+      }
+      
+      .add-topic-modal-footer button {
+        margin-left: 10px;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
       }
     </style>
 </head>
@@ -610,21 +663,17 @@
     </script>
     
     <!-- 新增考点对话框 -->
-    <div id="add-topic-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
+    <div id="add-topic-modal" class="add-topic-modal">
+        <div class="add-topic-modal-content">
+            <div class="add-topic-modal-header">
                 <h3>新增考点</h3>
-                <button class="modal-close">&times;</button>
             </div>
-            <div class="modal-body">
-                <div class="input-section">
-                    <label>考点名称</label>
-                    <input type="text" id="topic-name-input" placeholder="请输入考点名称" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                </div>
+            <div class="add-topic-modal-body">
+                <input type="text" id="topic-name-input" placeholder="请输入考点名称">
             </div>
-            <div class="modal-footer">
-                <button id="add-topic-cancel" class="btn btn-secondary">取消</button>
-                <button id="add-topic-confirm" class="btn btn-primary">确定</button>
+            <div class="add-topic-modal-footer">
+                <button id="add-topic-cancel" class="btn-secondary">取消</button>
+                <button id="add-topic-confirm" class="btn-primary">确定</button>
             </div>
         </div>
     </div>

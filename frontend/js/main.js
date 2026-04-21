@@ -391,9 +391,9 @@ extractChapterOrder(chapterName) {
                 <h4>
                     <i class="fas fa-folder-open"></i> ${chapter.name}
                     <span class="chapter-count">${chapter.topics.length}个考点</span>
-                    <span class="add-topic-badge" title="新增考点" onclick="event.stopPropagation(); paperComposer.openAddTopicModal('${this.currentSubject}/${this.currentQuestionType}/${chapter.name}')">
-                        新增考点
-                    </span>
+                    <button class="add-topic-button" onclick="paperComposer.openAddTopicModal('${this.currentSubject}/${this.currentQuestionType}/${chapter.name}')">
+                        <i class="fas fa-plus-circle"></i> 新增考点
+                    </button>
                 </h4>
                 <div class="topics-list" style="display: block;">`;
             
@@ -798,35 +798,29 @@ extractChapterOrder(chapterName) {
         // 保存当前章节信息
         this.currentChapterKey = chapterKey;
         
-        // 清空输入框
-        const topicNameInput = document.getElementById('topic-name-input');
-        if (topicNameInput) {
-            topicNameInput.value = '';
-        }
-        
         // 显示对话框
         const modal = document.getElementById('add-topic-modal');
         if (modal) {
             modal.style.display = 'block';
         }
         
-        // 为确定按钮添加点击事件监听器
-        const confirmButton = document.getElementById('add-topic-confirm');
-        const self = this; // 保存 this 引用
-        if (confirmButton) {
-            confirmButton.onclick = () => self.addTopic();
+        // 清空输入框
+        const input = document.getElementById('topic-name-input');
+        if (input) {
+            input.value = '';
         }
         
         // 为取消按钮添加点击事件监听器
         const cancelButton = document.getElementById('add-topic-cancel');
+        const self = this; // 保存 this 引用
         if (cancelButton) {
             cancelButton.onclick = () => self.closeAddTopicModal();
         }
         
-        // 为关闭按钮添加点击事件监听器
-        const closeButton = document.querySelector('#add-topic-modal .modal-close');
-        if (closeButton) {
-            closeButton.onclick = () => self.closeAddTopicModal();
+        // 为确定按钮添加点击事件监听器
+        const confirmButton = document.getElementById('add-topic-confirm');
+        if (confirmButton) {
+            confirmButton.onclick = () => self.saveNewTopic();
         }
     }
     
@@ -838,18 +832,18 @@ extractChapterOrder(chapterName) {
         }
     }
     
-    // 新增考点
-    async addTopic() {
-        const self = this;
+    // 保存新考点
+    async saveNewTopic() {
+        const self = this; // 保存 this 引用
         try {
             // 获取考点名称
-            const topicNameInput = document.getElementById('topic-name-input');
-            if (!topicNameInput) {
+            const input = document.getElementById('topic-name-input');
+            if (!input) {
                 this.showMessage('无法获取考点名称输入框', 'error');
                 return;
             }
             
-            const topicName = topicNameInput.value.trim();
+            const topicName = input.value.trim();
             if (!topicName) {
                 this.showMessage('考点名称不能为空', 'error');
                 return;
@@ -861,27 +855,19 @@ extractChapterOrder(chapterName) {
             }
             
             // 显示加载提示
-            this.showMessage('正在创建考点，请稍候...', 'info');
+            this.showMessage('正在创建新考点，请稍候...', 'info');
             
-            // 构建请求数据
-            const [subject, questionType, chapter] = this.currentChapterKey.split('/');
-            const data = {
-                subject: subject,
-                questionType: questionType,
-                chapter: chapter,
-                topicName: topicName
-            };
-            
-            console.log('新增考点 - 请求数据:', data);
-            
-            // 发送请求
+            // 构建保存请求
             const response = await fetch('/api/bank/add-topic', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 credentials: 'include',
-                body: JSON.stringify(data)
+                body: JSON.stringify({
+                    chapterKey: this.currentChapterKey,
+                    topicName: topicName
+                })
             });
             
             if (!response.ok) {
@@ -889,20 +875,19 @@ extractChapterOrder(chapterName) {
             }
             
             const result = await response.json();
-            console.log('新增考点 - 结果:', result);
-            
+            console.log('保存新考点 - result:', result);
             if (result.success) {
                 this.showMessage('考点创建成功', 'success');
                 // 关闭对话框
                 this.closeAddTopicModal();
-                // 重新加载题库结构
+                // 重新加载题库结构，确保数据是最新的
                 await this.loadBankStructure(this.currentSubject);
             } else {
                 this.showMessage('考点创建失败: ' + (result.message || '未知错误'), 'error');
             }
         } catch (error) {
-            console.error('新增考点失败:', error);
-            this.showMessage('新增考点失败，请重试', 'error');
+            console.error('保存新考点失败:', error);
+            this.showMessage('保存新考点失败，请重试', 'error');
         }
     }
     

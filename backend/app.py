@@ -577,32 +577,46 @@ def save_question():
 def add_topic():
     """新增考点"""
     try:
-        data = request.json
-        subject = data.get('subject')
-        questionType = data.get('questionType')
-        chapter = data.get('chapter')
-        topicName = data.get('topicName')
+        data = request.get_json()
+        chapter_key = data.get('chapterKey')
+        topic_name = data.get('topicName')
         
-        if not all([subject, questionType, chapter, topicName]):
-            return jsonify({'error': '缺少必要参数'}), 400
+        if not chapter_key or not topic_name:
+            return jsonify({'success': False, 'message': '章节信息和考点名称不能为空'}), 400
         
+        # 解析chapter_key
+        parts = chapter_key.split('/')
+        if len(parts) < 3:
+            return jsonify({'success': False, 'message': '章节信息格式无效'}), 400
+        
+        subject, question_type, chapter = parts
+        
+        # 获取用户目录
         user_id = session.get('user_id')
         user_dir = Config.get_user_dir(user_id)
         
+        # 构建章节路径
+        chapter_path = user_dir / subject / question_type / chapter
+        if not chapter_path.exists():
+            return jsonify({'success': False, 'message': '章节目录不存在'}), 404
+        
         # 构建考点文件路径
-        topic_file_path = user_dir / subject / questionType / chapter / f"{topicName}.md"
+        topic_file = chapter_path / "{}.md".format(topic_name)
+        if topic_file.exists():
+            return jsonify({'success': False, 'message': '该考点已存在'}), 400
         
-        # 确保目录存在
-        topic_file_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # 创建空的考点文件
-        topic_file_path.touch(exist_ok=True)
-        
-        print(f"新增考点 - 成功创建: {topic_file_path}")
-        return jsonify({'success': True, 'message': '考点创建成功'})
+        # 创建考点文件
+        try:
+            topic_file.write_text('', encoding='utf-8')
+            print("创建新考点文件: {}".format(topic_file))
+            return jsonify({'success': True, 'message': '考点创建成功'})
+        except Exception as e:
+            print("创建考点文件失败: {}".format(e))
+            return jsonify({'success': False, 'message': '创建考点文件失败: {}'.format(str(e))}), 500
+            
     except Exception as e:
-        print(f"新增考点失败: {e}")
-        return jsonify({'error': f'新增考点失败: {str(e)}'}), 500
+        print("新增考点失败: {}".format(e))
+        return jsonify({'success': False, 'message': '新增考点失败: {}'.format(str(e))}), 500
 
 @app.route('/api/question-types')
 @login_required
