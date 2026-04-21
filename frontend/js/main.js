@@ -688,14 +688,17 @@ extractChapterOrder(chapterName) {
             
             // 为保存按钮添加点击事件监听器
             const saveButton = document.getElementById('edit-modal-save');
+            const self = this; // 保存 this 引用
             if (saveButton) {
-                saveButton.onclick = () => this.saveQuestion();
+                saveButton.onclick = async () => {
+                    await self.saveQuestion();
+                };
             }
             
             // 为关闭按钮添加点击事件监听器
             const closeButton = document.getElementById('edit-modal-close');
             if (closeButton) {
-                closeButton.onclick = () => this.closeEditModal();
+                closeButton.onclick = () => self.closeEditModal();
             }
         } catch (error) {
             console.error('打开编辑对话框失败:', error);
@@ -713,36 +716,38 @@ extractChapterOrder(chapterName) {
     
     // 保存题目
     async saveQuestion() {
+        const self = this; // 保存 this 引用
         try {
             // 获取导出数据
             const exportDataElement = document.getElementById('export-data');
             if (!exportDataElement) {
-                this.showMessage('无法获取导出数据', 'error');
+                self.showMessage('无法获取导出数据', 'error');
                 return;
             }
             
             const questionContent = exportDataElement.textContent;
             if (!questionContent) {
-                this.showMessage('题目内容不能为空', 'error');
+                self.showMessage('题目内容不能为空', 'error');
                 return;
             }
             
-            console.log('保存题目 - currentQuestionPath:', this.currentQuestionPath);
-            console.log('保存题目 - currentQuestionIndex:', this.currentQuestionIndex);
+            console.log('保存题目 - currentQuestionPath:', self.currentQuestionPath);
+            console.log('保存题目 - currentQuestionIndex:', self.currentQuestionIndex);
             console.log('保存题目 - questionContent:', questionContent);
             
-            if (!this.currentQuestionPath) {
-                this.showMessage('题目路径无效，请重新打开编辑对话框', 'error');
+            if (!self.currentQuestionPath) {
+                self.showMessage('题目路径无效，请重新打开编辑对话框', 'error');
+                console.log('保存题目 - 错误: currentQuestionPath 为空');
                 return;
             }
             
-            if (this.currentQuestionIndex < 0) {
-                this.showMessage('题目索引无效，请重新打开编辑对话框', 'error');
+            if (self.currentQuestionIndex < 0) {
+                self.showMessage('题目索引无效，请重新打开编辑对话框', 'error');
                 return;
             }
             
             // 显示加载提示
-            this.showMessage('正在保存题目，请稍候...', 'info');
+            self.showMessage('正在保存题目，请稍候...', 'info');
             
             // 构建保存请求
             const response = await fetch('/api/bank/save-question', {
@@ -753,8 +758,8 @@ extractChapterOrder(chapterName) {
                 credentials: 'include',
                 body: JSON.stringify({
                     content: questionContent,
-                    path: this.currentQuestionPath,
-                    questionIndex: this.currentQuestionIndex
+                    path: self.currentQuestionPath,
+                    questionIndex: self.currentQuestionIndex
                 })
             });
             
@@ -763,48 +768,91 @@ extractChapterOrder(chapterName) {
             }
             
             const result = await response.json();
+            console.log('保存题目 - result:', result);
             if (result.success) {
-                this.showMessage('题目保存成功', 'success');
+                console.log('保存题目 - 成功，准备刷新');
+                self.showMessage('题目保存成功', 'success');
                 // 关闭对话框
-                this.closeEditModal();
+                self.closeEditModal();
                 // 刷新当前考点的题目
-                this.refreshCurrentTopic();
+                self.refreshCurrentTopic();
             } else {
-                this.showMessage('题目保存失败: ' + (result.message || '未知错误'), 'error');
+                self.showMessage('题目保存失败: ' + (result.message || '未知错误'), 'error');
             }
         } catch (error) {
             console.error('保存题目失败:', error);
-            this.showMessage('保存题目失败，请重试', 'error');
+            self.showMessage('保存题目失败，请重试', 'error');
         }
     }
     
     // 刷新当前考点的题目
     async refreshCurrentTopic() {
+        const self = this; // 保存 this 引用
+        console.log('refreshCurrentTopic - 开始执行');
+        console.log('refreshCurrentTopic - this.currentQuestionPath:', self.currentQuestionPath);
         try {
-            // 获取当前考点的容器
-            const activeTopic = document.querySelector('.topic-item.active');
-            if (activeTopic) {
-                const key = activeTopic.dataset.key;
-                const questionsContainer = activeTopic.querySelector('.questions-container');
-                const questionsContent = activeTopic.querySelector('.questions-content');
-                
-                if (questionsContainer && questionsContent) {
-                    // 显示加载状态
-                    const previewBadge = activeTopic.querySelector('.preview-badge');
-                    if (previewBadge) {
-                        previewBadge.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                    }
-                    
-                    // 重新加载题目
-                    const questions = await this.getTopicQuestions(key);
-                    await this.renderTopicQuestions(questionsContent, questions, key.split('/')[1]);
-                    
-                    // 保持展开状态
-                    questionsContainer.style.display = 'block';
-                    if (previewBadge) {
-                        previewBadge.innerHTML = '<i class="fas fa-chevron-up"></i>';
-                    }
+            // 使用 currentQuestionPath 来刷新题目
+            if (!self.currentQuestionPath) {
+                console.log('刷新题目 - 没有保存的路径信息');
+                return;
+            }
+            
+            // 构建key（从路径中提取）
+            const parts = self.currentQuestionPath.split('/');
+            if (parts.length < 4) {
+                console.log('刷新题目 - 路径格式无效');
+                return;
+            }
+            
+            const [subject, qType, chapter, topicWithExt] = parts;
+            const topic = topicWithExt.replace('.md', '');
+            const key = `${subject}/${qType}/${chapter}/${topic}`;
+            console.log('刷新题目 - key:', key);
+            
+            // 查找对应的 topic-item
+            // 注意：data-key 可能包含空格，需要正确处理
+            const allTopicItems = document.querySelectorAll('.topic-item');
+            let topicItem = null;
+            for (const item of allTopicItems) {
+                if (item.dataset.key === key) {
+                    topicItem = item;
+                    break;
                 }
+            }
+            
+            if (!topicItem) {
+                console.log('刷新题目 - 未找到对应的考点元素');
+                console.log('刷新题目 - 查找的key:', key);
+                console.log('刷新题目 - 页面中的topic-item数量:', allTopicItems.length);
+                return;
+            }
+            
+            const questionsContainer = topicItem.querySelector('.topic-questions');
+            const questionsContent = topicItem.querySelector('.topic-questions-content');
+            const previewBadge = topicItem.querySelector('.preview-badge');
+            
+            if (questionsContainer && questionsContent) {
+                // 显示加载状态
+                if (previewBadge) {
+                    previewBadge.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                }
+                
+                // 重新加载题目
+                const questions = await self.getTopicQuestions(key);
+                console.log('刷新题目 - 获取到题目数量:', questions.length);
+                
+                // 清空内容后重新渲染
+                questionsContent.innerHTML = '';
+                await self.renderTopicQuestions(questionsContent, questions, qType);
+                console.log('刷新题目 - 渲染完成');
+                
+                // 保持展开状态
+                questionsContainer.style.display = 'block';
+                if (previewBadge) {
+                    previewBadge.innerHTML = '<i class="fas fa-chevron-up"></i>';
+                }
+                
+                console.log('刷新题目 - 成功');
             }
         } catch (error) {
             console.error('刷新题目失败:', error);

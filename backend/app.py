@@ -553,8 +553,9 @@ def save_question():
             f.write(new_content)
         
         # 清除缓存，确保下次加载时重新解析
-        if full_path in QuestionParser._question_cache:
-            del QuestionParser._question_cache[full_path]
+        cache_key = str(full_path)
+        if cache_key in QuestionParser._question_cache:
+            del QuestionParser._question_cache[cache_key]
         
         print(f"保存题目 - 成功保存到: {full_path}")
         return jsonify({'success': True, 'message': '题目保存成功'})
