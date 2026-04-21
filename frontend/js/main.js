@@ -21,6 +21,7 @@ class PaperComposer {
         this.currentUser = null; // 当前用户信息
         this.templateManageModal = null; // 模板管理模态框
         this.currentQuestionPath = ''; // 当前题目路径
+        this.currentQuestionIndex = -1; // 当前题目索引
         
         // 初始化
         this.init();
@@ -727,10 +728,16 @@ extractChapterOrder(chapterName) {
             }
             
             console.log('保存题目 - currentQuestionPath:', this.currentQuestionPath);
+            console.log('保存题目 - currentQuestionIndex:', this.currentQuestionIndex);
             console.log('保存题目 - questionContent:', questionContent);
             
             if (!this.currentQuestionPath) {
                 this.showMessage('题目路径无效，请重新打开编辑对话框', 'error');
+                return;
+            }
+            
+            if (this.currentQuestionIndex < 0) {
+                this.showMessage('题目索引无效，请重新打开编辑对话框', 'error');
                 return;
             }
             
@@ -746,7 +753,8 @@ extractChapterOrder(chapterName) {
                 credentials: 'include',
                 body: JSON.stringify({
                     content: questionContent,
-                    path: this.currentQuestionPath
+                    path: this.currentQuestionPath,
+                    questionIndex: this.currentQuestionIndex
                 })
             });
             
@@ -868,7 +876,7 @@ extractChapterOrder(chapterName) {
             const questionIndex = parseInt(button.dataset.questionIndex);
             const question = questions[questionIndex];
             const questionType = button.dataset.questionType;
-            // 设置当前题目路径
+            // 设置当前题目路径和索引
             const topicItem = button.closest('.topic-item');
             console.log('编辑按钮点击 - topicItem:', topicItem);
             if (topicItem) {
@@ -880,6 +888,9 @@ extractChapterOrder(chapterName) {
                     this.currentQuestionPath = `${subject}/${qType}/${chapter}/${topic}.md`;
                     console.log('编辑按钮点击 - currentQuestionPath:', this.currentQuestionPath);
                 }
+                // 设置当前题目索引
+                this.currentQuestionIndex = questionIndex;
+                console.log('编辑按钮点击 - currentQuestionIndex:', this.currentQuestionIndex);
             }
             this.openEditModal(questionIndex, question, questionType);
         });

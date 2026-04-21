@@ -495,18 +495,18 @@ def save_question():
     """保存题目"""
     data = request.json
     print(f"保存题目 - 请求数据: {data}")
-    if not data or 'content' not in data or 'path' not in data:
+    if not data or 'content' not in data or 'path' not in data or 'questionIndex' not in data:
         print(f"保存题目 - 错误: 缺少必要字段")
         print(f"保存题目 - data: {data}")
-        print(f"保存题目 - content in data: {'content' in data if data else 'data is None'}")
-        print(f"保存题目 - path in data: {'path' in data if data else 'data is None'}")
         return jsonify({'error': '缺少必要字段'}), 400
     
     content = data['content']
     file_path = data['path']
+    question_index = data['questionIndex']
     
     print(f"保存题目 - content: {content[:100] if content else 'None'}...")
     print(f"保存题目 - path: {file_path}")
+    print(f"保存题目 - questionIndex: {question_index}")
     
     user_id = session.get('user_id')
     user_dir = Config.get_user_dir(user_id)
@@ -528,9 +528,33 @@ def save_question():
         return jsonify({'error': '无效的文件路径'}), 400
     
     try:
-        # 保存题目内容
+        # 读取原文件内容
+        with open(full_path, 'r', encoding='utf-8') as f:
+            original_content = f.read()
+        
+        # 按 '---' 分割题目
+        questions = [q.strip() for q in original_content.split('---') if q.strip()]
+        print(f"保存题目 - 原文件题目数量: {len(questions)}")
+        print(f"保存题目 - 要替换的题目索引: {question_index}")
+        
+        # 检查索引是否有效
+        if question_index < 0 or question_index >= len(questions):
+            print(f"保存题目 - 错误: 题目索引无效")
+            return jsonify({'error': '题目索引无效'}), 400
+        
+        # 替换对应题目的内容
+        questions[question_index] = content.strip()
+        
+        # 重新组合文件内容
+        new_content = '\n\n---\n\n'.join(questions)
+        
+        # 写入文件
         with open(full_path, 'w', encoding='utf-8') as f:
-            f.write(content)
+            f.write(new_content)
+        
+        # 清除缓存，确保下次加载时重新解析
+        if full_path in QuestionParser._question_cache:
+            del QuestionParser._question_cache[full_path]
         
         print(f"保存题目 - 成功保存到: {full_path}")
         return jsonify({'success': True, 'message': '题目保存成功'})
