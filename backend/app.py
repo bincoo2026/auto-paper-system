@@ -223,8 +223,8 @@ def get_bank_structure():
                                     'count': count
                                 })
                             
-                            if chapter_data['topics']:
-                                structure[subject_name][type_name].append(chapter_data)
+                            # 无论是否有考点文件，都添加章节到结构中
+                            structure[subject_name][type_name].append(chapter_data)
 
     return jsonify(structure)
 
@@ -616,6 +616,41 @@ def add_topic():
     except Exception as e:
         print("新增考点失败: {}".format(e))
         return jsonify({'success': False, 'message': '新增考点失败: {}'.format(str(e))}), 500
+
+@app.route('/api/bank/add-chapter', methods=['POST'])
+@login_required
+def add_chapter():
+    """新增目录"""
+    try:
+        data = request.get_json()
+        subject = data.get('subject')
+        questionType = data.get('questionType')
+        chapterName = data.get('chapterName')
+        
+        if not subject or not questionType or not chapterName:
+            return jsonify({'success': False, 'message': '科目、题型和目录名称不能为空'}), 400
+        
+        # 获取用户目录
+        user_id = session.get('user_id')
+        user_dir = Config.get_user_dir(user_id)
+        
+        # 构建目录路径
+        chapter_path = user_dir / subject / questionType / chapterName
+        if chapter_path.exists():
+            return jsonify({'success': False, 'message': '该目录已存在'}), 400
+        
+        # 创建目录
+        try:
+            chapter_path.mkdir(parents=True, exist_ok=True)
+            print("创建新目录: {}".format(chapter_path))
+            return jsonify({'success': True, 'message': '目录创建成功'})
+        except Exception as e:
+            print("创建目录失败: {}".format(e))
+            return jsonify({'success': False, 'message': '创建目录失败: {}'.format(str(e))}), 500
+            
+    except Exception as e:
+        print("新增目录失败: {}".format(e))
+        return jsonify({'success': False, 'message': '新增目录失败: {}'.format(str(e))}), 500
 
 @app.route('/api/question-types')
 @login_required

@@ -380,6 +380,14 @@ extractChapterOrder(chapterName) {
             <div class="current-type-indicator">
                 <i class="fas fa-filter"></i>
                 <span>当前显示: ${this.currentQuestionType}</span>
+                <div class="type-actions">
+                    <button class="btn btn-small btn-primary" onclick="paperComposer.openAddChapterModal()">
+                        <i class="fas fa-folder-plus"></i> 新增目录
+                    </button>
+                    <button class="btn btn-small btn-secondary" onclick="paperComposer.toggleAllChapters()">
+                        <i class="fas fa-chevron-up"></i> 收起目录
+                    </button>
+                </div>
                 ${this.isTemplateApplied ? 
                     `<span class="selection-badge" style="margin-left: auto; background: linear-gradient(135deg, #10b981, #059669);">
                         <i class="fas fa-clone"></i> 模板已应用
@@ -845,6 +853,151 @@ extractChapterOrder(chapterName) {
         const modal = document.getElementById('add-topic-modal');
         if (modal) {
             modal.style.display = 'none';
+        }
+    }
+    
+    // 打开新增目录对话框
+    openAddChapterModal() {
+        console.log('打开新增目录对话框');
+        
+        // 显示对话框
+        const modal = document.getElementById('add-chapter-modal');
+        if (modal) {
+            modal.style.display = 'block';
+        }
+        
+        // 清空输入框
+        const input = document.getElementById('chapter-name-input');
+        if (input) {
+            input.value = '';
+        }
+        
+        // 为取消按钮添加点击事件监听器
+        const cancelButton = document.getElementById('add-chapter-cancel');
+        const self = this; // 保存 this 引用
+        if (cancelButton) {
+            cancelButton.onclick = () => self.closeAddChapterModal();
+        }
+        
+        // 为确定按钮添加点击事件监听器
+        const confirmButton = document.getElementById('add-chapter-confirm');
+        if (confirmButton) {
+            confirmButton.onclick = () => self.saveNewChapter();
+        }
+    }
+    
+    // 关闭新增目录对话框
+    closeAddChapterModal() {
+        const modal = document.getElementById('add-chapter-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+    
+    // 保存新目录
+    async saveNewChapter() {
+        const self = this; // 保存 this 引用
+        try {
+            // 获取目录名称
+            const input = document.getElementById('chapter-name-input');
+            if (!input) {
+                this.showMessage('无法获取目录名称输入框', 'error');
+                return;
+            }
+            
+            const chapterName = input.value.trim();
+            if (!chapterName) {
+                this.showMessage('目录名称不能为空', 'error');
+                return;
+            }
+            
+            if (!this.currentSubject || !this.currentQuestionType) {
+                this.showMessage('请先选择科目和题型', 'error');
+                return;
+            }
+            
+            // 显示加载提示
+            this.showMessage('正在创建新目录，请稍候...', 'info');
+            
+            // 构建保存请求
+            const response = await fetch('/api/bank/add-chapter', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    subject: this.currentSubject,
+                    questionType: this.currentQuestionType,
+                    chapterName: chapterName
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const result = await response.json();
+            console.log('保存新目录 - result:', result);
+            if (result.success) {
+                this.showMessage('目录创建成功', 'success');
+                // 关闭对话框
+                this.closeAddChapterModal();
+                // 重新加载题库结构，确保数据是最新的
+                await this.loadBankStructure(this.currentSubject);
+            } else {
+                this.showMessage('目录创建失败: ' + (result.message || '未知错误'), 'error');
+            }
+        } catch (error) {
+            console.error('保存新目录失败:', error);
+            this.showMessage('保存新目录失败，请重试', 'error');
+        }
+    }
+    
+    // 收起/展开所有目录
+    toggleAllChapters() {
+        const button = event.target.closest('button');
+        if (!button) return;
+        
+        const icon = button.querySelector('i');
+        const text = button.textContent.trim();
+        
+        const chapterSections = document.querySelectorAll('.chapter-section');
+        
+        if (text.includes('收起')) {
+            // 收起所有目录
+            chapterSections.forEach(section => {
+                const topicsList = section.querySelector('.topics-list');
+                if (topicsList) {
+                    topicsList.style.display = 'none';
+                }
+                const headerIcon = section.querySelector('h4 i');
+                if (headerIcon) {
+                    headerIcon.style.transform = 'rotate(-90deg)';
+                }
+            });
+            // 更新按钮状态
+            if (icon) {
+                icon.className = 'fas fa-chevron-down';
+            }
+            button.innerHTML = '<i class="fas fa-chevron-down"></i> 展开目录';
+        } else {
+            // 展开所有目录
+            chapterSections.forEach(section => {
+                const topicsList = section.querySelector('.topics-list');
+                if (topicsList) {
+                    topicsList.style.display = 'block';
+                }
+                const headerIcon = section.querySelector('h4 i');
+                if (headerIcon) {
+                    headerIcon.style.transform = 'rotate(0deg)';
+                }
+            });
+            // 更新按钮状态
+            if (icon) {
+                icon.className = 'fas fa-chevron-up';
+            }
+            button.innerHTML = '<i class="fas fa-chevron-up"></i> 收起目录';
         }
     }
     
