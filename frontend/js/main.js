@@ -22,6 +22,7 @@ class PaperComposer {
         this.templateManageModal = null; // 模板管理模态框
         this.currentQuestionPath = ''; // 当前题目路径
         this.currentQuestionIndex = -1; // 当前题目索引
+        this.currentTopicKey = ''; // 当前考点key，用于展开操作
         
         // 初始化
         this.init();
@@ -770,6 +771,7 @@ extractChapterOrder(chapterName) {
             // 保存当前考点信息，用于后续保存
             this.currentQuestionPath = `${subject}/${questionType}/${chapter}/${topic}.md`;
             this.currentQuestionIndex = -1; // -1 表示新增题目
+            this.currentTopicKey = key; // 保存当前考点key，用于后续展开
             
             // 为保存按钮添加点击事件监听器
             const saveButton = document.getElementById('edit-modal-save');
@@ -777,6 +779,20 @@ extractChapterOrder(chapterName) {
             if (saveButton) {
                 saveButton.onclick = async () => {
                     await self.saveQuestion();
+                    // 新建题目保存成功后，重新加载题库并显示当前新增的题目
+                    if (self.currentQuestionIndex === -1) {
+                        await self.loadBankStructure(self.currentSubject);
+                        // 展开被增加题目所在的考点题目列表
+                        setTimeout(() => {
+                            const topicItem = document.querySelector(`.topic-item[data-key="${self.currentTopicKey}"]`);
+                            if (topicItem) {
+                                const topicInfo = topicItem.querySelector('.topic-info');
+                                if (topicInfo) {
+                                    topicInfo.click(); // 点击展开考点
+                                }
+                            }
+                        }, 100); // 等待DOM更新
+                    }
                 };
             }
             
