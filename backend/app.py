@@ -702,6 +702,52 @@ def rename_topic():
         print(f"重命名考点失败: {e}")
         return jsonify({'success': False, 'message': '重命名考点失败: {}'.format(str(e))}), 500
 
+@app.route('/api/bank/delete-topic', methods=['POST'])
+@login_required
+def delete_topic():
+    """删除考点"""
+    try:
+        data = request.get_json()
+        topic_key = data.get('topic_key')
+        
+        if not topic_key:
+            return jsonify({'success': False, 'message': '考点路径不能为空'}), 400
+        
+        # 解析topic_key获取文件路径
+        parts = topic_key.split('/')
+        if len(parts) < 4:
+            return jsonify({'success': False, 'message': '无效的考点路径'}), 400
+        
+        # 获取用户目录
+        user_id = session.get('user_id')
+        user_dir = Config.get_user_dir(user_id)
+        
+        subject = parts[0]
+        questionType = parts[1]
+        chapter = parts[2]
+        topic_name = parts[3].replace('.md', '')
+        
+        # 构建文件路径
+        file_path = user_dir / subject / questionType / chapter / f'{topic_name}.md'
+        
+        if not file_path.exists():
+            return jsonify({'success': False, 'message': '考点文件不存在'}), 404
+        
+        # 删除文件
+        try:
+            file_path.unlink()
+            print(f"删除考点: {file_path}")
+            # 清除缓存
+            from question_parser import QuestionParser
+            QuestionParser.clear_cache()
+            return jsonify({'success': True, 'message': '考点删除成功'})
+        except Exception as e:
+            print(f"删除考点失败: {e}")
+            return jsonify({'success': False, 'message': '删除考点失败: {}'.format(str(e))}), 500
+    except Exception as e:
+        print(f"删除考点失败: {e}")
+        return jsonify({'success': False, 'message': '删除考点失败: {}'.format(str(e))}), 500
+
 @app.route('/api/bank/rename-chapter', methods=['POST'])
 @login_required
 def rename_chapter():

@@ -171,7 +171,32 @@
         transform: translateY(-1px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       }
-      
+
+      /* 删除考点按钮 */
+      .delete-topic-badge {
+        margin-left: 5px;
+        background: linear-gradient(135deg, #fef2f2, #fee2e2);
+        color: #dc2626;
+        padding: 0.25rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        flex-shrink: 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 1px solid #fecaca;
+        vertical-align: middle;
+        display: flex;
+        align-items: center;
+      }
+
+      .delete-topic-badge:hover {
+        background: linear-gradient(135deg, #fee2e2, #fecaca);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+
       .rename-chapter-badge {
         margin-left: 10px;
         background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
@@ -302,6 +327,29 @@
       
       .add-chapter-modal-body {
         margin-bottom: 20px;
+      }
+
+      /* 确认删除模态框特殊样式 */
+      #delete-question-modal .add-chapter-modal-content,
+      #delete-topic-modal .add-chapter-modal-content {
+        height: auto;
+        min-height: 150px;
+        max-height: 200px;
+      }
+
+      #delete-question-modal .add-chapter-modal-body,
+      #delete-topic-modal .add-chapter-modal-body {
+        margin-bottom: 20px;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #delete-question-modal .add-chapter-modal-body p,
+      #delete-topic-modal .add-chapter-modal-body p {
+        margin: 0;
+        text-align: center;
       }
       
       .add-chapter-modal-body input {
@@ -880,6 +928,22 @@
             <div class="add-chapter-modal-footer">
                 <button id="delete-question-cancel" class="btn-secondary">取消</button>
                 <button id="delete-question-confirm" class="btn-primary">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除考点确认模态框 -->
+    <div id="delete-topic-modal" class="add-chapter-modal">
+        <div class="add-chapter-modal-content">
+            <div class="add-chapter-modal-header">
+                <h3>确认删除</h3>
+            </div>
+            <div class="add-chapter-modal-body">
+                <p>您确认删除该考点所有题目吗？</p>
+            </div>
+            <div class="add-chapter-modal-footer">
+                <button id="delete-topic-cancel" class="btn-secondary">取消</button>
+                <button id="delete-topic-confirm" class="btn-primary">确定</button>
             </div>
         </div>
     </div>

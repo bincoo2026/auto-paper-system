@@ -425,6 +425,9 @@ extractChapterOrder(chapterName) {
                         <span class="rename-badge" title="重命名考点" onclick="event.stopPropagation(); paperComposer.openRenameTopicModal('${key}')">
                             <i class="fas fa-edit"></i>
                         </span>
+                        <span class="delete-topic-badge" title="删除考点" onclick="event.stopPropagation(); paperComposer.openDeleteTopicModal('${key}')">
+                            <i class="fas fa-trash-alt"></i>
+                        </span>
                         <span class="preview-badge" title="点击查看题目">
                             <i class="fas fa-chevron-down"></i>
                         </span>
@@ -960,7 +963,92 @@ extractChapterOrder(chapterName) {
         }
         this.currentTopicKey = null;
     }
-    
+
+    // 打开删除考点对话框
+    openDeleteTopicModal(topicKey) {
+        this.currentTopicKey = topicKey;
+        const modal = document.getElementById('delete-topic-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+
+        // 为确认按钮添加点击事件监听器
+        const confirmButton = document.getElementById('delete-topic-confirm');
+        const cancelButton = document.getElementById('delete-topic-cancel');
+        const self = this;
+
+        if (confirmButton) {
+            confirmButton.onclick = () => self.saveDeleteTopic();
+        }
+
+        if (cancelButton) {
+            cancelButton.onclick = () => self.closeDeleteTopicModal();
+        }
+    }
+
+    // 关闭删除考点对话框
+    closeDeleteTopicModal() {
+        const modal = document.getElementById('delete-topic-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        this.currentTopicKey = null;
+    }
+
+    // 保存删除考点
+    async saveDeleteTopic() {
+        const self = this;
+        try {
+            if (!this.currentTopicKey) {
+                this.showMessage('未找到考点信息', 'error');
+                return;
+            }
+
+            // 解析topic_key获取路径信息
+            const parts = this.currentTopicKey.split('/');
+            if (parts.length < 4) {
+                this.showMessage('无效的考点路径', 'error');
+                return;
+            }
+
+            const subject = parts[0];
+            const questionType = parts[1];
+            const chapter = parts[2];
+            const topicName = parts[3].replace('.md', '');
+
+            // 发送请求到后端
+            const response = await fetch('/api/bank/delete-topic', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    topic_key: this.currentTopicKey
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({}));
+                throw new Error(error.message || '删除考点失败');
+            }
+
+            const result = await response.json();
+            if (result.success) {
+                // 关闭对话框
+                this.closeDeleteTopicModal();
+                // 重新加载题库结构
+                await this.loadBankStructure(this.currentSubject);
+                // 显示成功消息
+                this.showMessage('考点删除成功', 'success');
+            } else {
+                throw new Error(result.message || '删除考点失败');
+            }
+        } catch (error) {
+            console.error('删除考点失败:', error);
+            this.showMessage('删除考点失败: ' + error.message, 'error');
+        }
+    }
+
     // 保存重命名考点
     async saveRenameTopic() {
         const self = this; // 保存 this 引用
