@@ -920,41 +920,6 @@ header::after {
     border: 1px solid #fecaca;
 }
 
-/* 编辑和删除按钮样式 */
-.edit-button {
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 4px 8px;
-    font-size: 12px;
-    cursor: pointer;
-    margin-left: 10px;
-    flex-shrink: 0;
-    align-self: flex-start;
-}
-
-.edit-button:hover {
-    background-color: #2563eb;
-}
-
-.delete-button {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 4px 8px;
-    font-size: 12px;
-    cursor: pointer;
-    margin-left: 3px;
-    flex-shrink: 0;
-    align-self: flex-start;
-}
-
-.delete-button:hover {
-    background-color: #c82333;
-}
-
 /* 空题目状态 */
 .empty-questions {
     color: #64748b;
