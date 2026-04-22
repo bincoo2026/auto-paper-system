@@ -745,6 +745,91 @@ def rename_chapter():
         print(f"重命名章目录失败: {e}")
         return jsonify({'success': False, 'message': '重命名章目录失败: {}'.format(str(e))}), 500
 
+@app.route('/api/bank/delete-question', methods=['POST'])
+@login_required
+def delete_question():
+    """删除题目"""
+    try:
+        data = request.get_json()
+        topic_key = data.get('topic_key')
+        question_index = data.get('question_index')
+        
+        if not topic_key or question_index is None:
+            return jsonify({'success': False, 'message': '考点路径和题目索引不能为空'}), 400
+        
+        # 解析topic_key获取文件路径
+        parts = topic_key.split('/')
+        if len(parts) < 4:
+            return jsonify({'success': False, 'message': '无效的考点路径'}), 400
+        
+        # 获取用户目录
+        user_id = session.get('user_id')
+        user_dir = Config.get_user_dir(user_id)
+        
+        subject = parts[0]
+        questionType = parts[1]
+        chapter = parts[2]
+        topic_name = parts[3].replace('.md', '')
+        
+        # 构建文件路径
+        file_path = user_dir / subject / questionType / chapter / f'{topic_name}.md'
+        
+        if not file_path.exists():
+            return jsonify({'success': False, 'message': '考点文件不存在'}), 404
+        
+        # 读取文件内容
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # 分割题目（保留空行信息）
+        lines = content.split('\n')
+        questions = []
+        current_question = []
+        
+        for line in lines:
+            if line.strip() == '---':
+                if current_question:
+                    questions.append('\n'.join(current_question))
+                    current_question = []
+            else:
+                current_question.append(line)
+        
+        # 添加最后一个题目
+        if current_question:
+            questions.append('\n'.join(current_question))
+        
+        # 清理每个题目，去除首尾空行
+        questions = [q.strip() for q in questions if q.strip()]
+        
+        # 检查索引是否有效
+        if question_index < 0 or question_index >= len(questions):
+            return jsonify({'success': False, 'message': '题目索引无效'}), 400
+        
+        # 删除指定题目
+        del questions[question_index]
+        
+        # 重新组合文件内容，确保格式正确
+        if not questions:
+            # 如果删除后没有题目了，清空文件
+            new_content = ''
+        else:
+            # 每个题目之间用"\n\n---\n\n"分隔，保持与约定格式一致
+            new_content = '\n\n---\n\n'.join(questions)
+        
+        # 写回文件
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(new_content)
+        
+        print(f"删除题目: {file_path}, 索引: {question_index}")
+        # 清除缓存
+        from question_parser import QuestionParser
+        QuestionParser.clear_cache()
+        
+        return jsonify({'success': True, 'message': '题目删除成功'})
+    except Exception as e:
+        print(f"删除题目失败: {e}")
+        return jsonify({'success': False, 'message': '删除题目失败: {}'.format(str(e))}), 500
+
 @app.route('/api/question-types')
 @login_required
 def get_question_types():

@@ -1127,6 +1127,104 @@ extractChapterOrder(chapterName) {
         }
     }
     
+    // 打开删除题目确认对话框
+    openDeleteQuestionModal(questionIndex, questionType, topicKey) {
+        console.log('打开删除题目确认对话框', questionIndex, questionType, topicKey);
+        
+        // 显示对话框
+        const modal = document.getElementById('delete-question-modal');
+        if (modal) {
+            modal.style.display = 'block';
+        }
+        
+        // 保存当前题目信息
+        this.currentDeleteInfo = {
+            questionIndex: questionIndex,
+            questionType: questionType,
+            topicKey: topicKey
+        };
+        
+        // 为取消按钮添加点击事件监听器
+        const cancelButton = document.getElementById('delete-question-cancel');
+        const self = this; // 保存 this 引用
+        if (cancelButton) {
+            cancelButton.onclick = () => self.closeDeleteQuestionModal();
+        }
+        
+        // 为确定按钮添加点击事件监听器
+        const confirmButton = document.getElementById('delete-question-confirm');
+        if (confirmButton) {
+            confirmButton.onclick = () => self.saveDeleteQuestion();
+        }
+    }
+    
+    // 关闭删除题目确认对话框
+    closeDeleteQuestionModal() {
+        const modal = document.getElementById('delete-question-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        this.currentDeleteInfo = null;
+    }
+    
+    // 保存删除题目
+    async saveDeleteQuestion() {
+        const self = this; // 保存 this 引用
+        try {
+            if (!this.currentDeleteInfo) {
+                this.showMessage('未找到题目信息', 'error');
+                return;
+            }
+            
+            const { questionIndex, questionType, topicKey } = this.currentDeleteInfo;
+            
+            // 发送请求到后端
+            const response = await fetch('/api/bank/delete-question', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    topic_key: topicKey,
+                    question_index: questionIndex,
+                    question_type: questionType
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('服务器响应失败');
+            }
+            
+            const result = await response.json();
+            if (result.success) {
+                // 关闭对话框
+                this.closeDeleteQuestionModal();
+                
+                // 重新加载题库结构
+                await this.loadBankStructure(this.currentSubject);
+                
+                // 展开被修改的考点的题目列表
+                setTimeout(() => {
+                    const topicItem = document.querySelector(`.topic-item[data-key="${topicKey}"]`);
+                    if (topicItem) {
+                        const topicInfo = topicItem.querySelector('.topic-info');
+                        if (topicInfo) {
+                            topicInfo.click(); // 点击展开考点
+                        }
+                    }
+                }, 500);
+                
+                // 显示成功消息
+                this.showMessage('题目删除成功', 'success');
+            } else {
+                this.showMessage(result.message || '删除失败', 'error');
+            }
+        } catch (error) {
+            console.error('删除题目失败:', error);
+            this.showMessage('删除题目失败: ' + error.message, 'error');
+        }
+    }
+    
     // 保存新目录
     async saveNewChapter() {
         const self = this; // 保存 this 引用
@@ -1499,6 +1597,7 @@ extractChapterOrder(chapterName) {
             <span class="question-number">${index + 1}.</span>
             <div class="question-content">${this.escapeHtml(questionContent)}</div>
             <button class="edit-button" data-question-index="${index}" data-question-type="${questionType}">编辑</button>
+            <button class="delete-button" data-question-index="${index}" data-question-type="${questionType}">删除</button>
         </div>`;
     });
     
@@ -1528,6 +1627,22 @@ extractChapterOrder(chapterName) {
                 console.log('编辑按钮点击 - currentQuestionIndex:', this.currentQuestionIndex);
             }
             this.openEditModal(questionIndex, question, questionType);
+        });
+    });
+    
+    // 为删除按钮绑定点击事件
+    container.querySelectorAll('.delete-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const questionIndex = parseInt(button.dataset.questionIndex);
+            const questionType = button.dataset.questionType;
+            // 获取考点key
+            const topicItem = button.closest('.topic-item');
+            if (topicItem) {
+                const topicKey = topicItem.dataset.key;
+                // 打开删除确认模态框
+                this.openDeleteQuestionModal(questionIndex, questionType, topicKey);
+            }
         });
     });
     

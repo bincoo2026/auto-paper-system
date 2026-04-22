@@ -104,8 +104,19 @@
         font-size: 12px;
         cursor: pointer;
       }
-      .edit-button:hover {
-        background-color: #2563eb;
+      .delete-button {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-size: 12px;
+        cursor: pointer;
+        margin-left: 3px;
+      }
+      
+      .delete-button:hover {
+        background-color: #c82333;
       }
       #question-answer-editor {
         min-height: 30px;
@@ -853,6 +864,22 @@
             <div class="add-chapter-modal-footer">
                 <button id="rename-chapter-cancel" class="btn-secondary">取消</button>
                 <button id="rename-chapter-confirm" class="btn-primary">确定</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 删除题目确认对话框 -->
+    <div id="delete-question-modal" class="add-chapter-modal">
+        <div class="add-chapter-modal-content">
+            <div class="add-chapter-modal-header">
+                <h3>确认删除</h3>
+            </div>
+            <div class="add-chapter-modal-body">
+                <p>您确认删除该试题吗？</p>
+            </div>
+            <div class="add-chapter-modal-footer">
+                <button id="delete-question-cancel" class="btn-secondary">取消</button>
+                <button id="delete-question-confirm" class="btn-primary">确定</button>
             </div>
         </div>
     </div>
