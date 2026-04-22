@@ -647,10 +647,103 @@ def add_chapter():
         except Exception as e:
             print("创建目录失败: {}".format(e))
             return jsonify({'success': False, 'message': '创建目录失败: {}'.format(str(e))}), 500
-            
     except Exception as e:
         print("新增目录失败: {}".format(e))
         return jsonify({'success': False, 'message': '新增目录失败: {}'.format(str(e))}), 500
+
+@app.route('/api/bank/rename-topic', methods=['POST'])
+@login_required
+def rename_topic():
+    """重命名考点"""
+    try:
+        data = request.get_json()
+        topic_key = data.get('topic_key')
+        new_name = data.get('new_name')
+        
+        if not topic_key or not new_name:
+            return jsonify({'success': False, 'message': '考点路径和新名称不能为空'}), 400
+        
+        # 解析topic_key获取文件路径
+        parts = topic_key.split('/')
+        if len(parts) < 4:
+            return jsonify({'success': False, 'message': '无效的考点路径'}), 400
+        
+        # 获取用户目录
+        user_id = session.get('user_id')
+        user_dir = Config.get_user_dir(user_id)
+        
+        subject = parts[0]
+        questionType = parts[1]
+        chapter = parts[2]
+        old_topic_name = parts[3].replace('.md', '')
+        
+        # 构建文件路径
+        old_file_path = user_dir / subject / questionType / chapter / f'{old_topic_name}.md'
+        new_file_path = user_dir / subject / questionType / chapter / f'{new_name}.md'
+        
+        if not old_file_path.exists():
+            return jsonify({'success': False, 'message': '考点文件不存在'}), 404
+        
+        if new_file_path.exists():
+            return jsonify({'success': False, 'message': '新名称已存在'}), 400
+        
+        # 重命名文件
+        try:
+            old_file_path.rename(new_file_path)
+            print(f"重命名考点: {old_file_path} -> {new_file_path}")
+            # 清除缓存
+            from question_parser import QuestionParser
+            QuestionParser.clear_cache()
+            return jsonify({'success': True, 'message': '考点重命名成功'})
+        except Exception as e:
+            print(f"重命名考点失败: {e}")
+            return jsonify({'success': False, 'message': '重命名考点失败: {}'.format(str(e))}), 500
+    except Exception as e:
+        print(f"重命名考点失败: {e}")
+        return jsonify({'success': False, 'message': '重命名考点失败: {}'.format(str(e))}), 500
+
+@app.route('/api/bank/rename-chapter', methods=['POST'])
+@login_required
+def rename_chapter():
+    """重命名章目录"""
+    try:
+        data = request.get_json()
+        subject = data.get('subject')
+        questionType = data.get('questionType')
+        old_name = data.get('old_name')
+        new_name = data.get('new_name')
+        
+        if not subject or not questionType or not old_name or not new_name:
+            return jsonify({'success': False, 'message': '科目、题型、旧名称和新名称不能为空'}), 400
+        
+        # 获取用户目录
+        user_id = session.get('user_id')
+        user_dir = Config.get_user_dir(user_id)
+        
+        # 构建目录路径
+        old_dir_path = user_dir / subject / questionType / old_name
+        new_dir_path = user_dir / subject / questionType / new_name
+        
+        if not old_dir_path.exists():
+            return jsonify({'success': False, 'message': '章目录不存在'}), 404
+        
+        if new_dir_path.exists():
+            return jsonify({'success': False, 'message': '新名称已存在'}), 400
+        
+        # 重命名目录
+        try:
+            old_dir_path.rename(new_dir_path)
+            print(f"重命名章目录: {old_dir_path} -> {new_dir_path}")
+            # 清除缓存
+            from question_parser import QuestionParser
+            QuestionParser.clear_cache()
+            return jsonify({'success': True, 'message': '章目录重命名成功'})
+        except Exception as e:
+            print(f"重命名章目录失败: {e}")
+            return jsonify({'success': False, 'message': '重命名章目录失败: {}'.format(str(e))}), 500
+    except Exception as e:
+        print(f"重命名章目录失败: {e}")
+        return jsonify({'success': False, 'message': '重命名章目录失败: {}'.format(str(e))}), 500
 
 @app.route('/api/question-types')
 @login_required

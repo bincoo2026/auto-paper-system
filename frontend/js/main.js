@@ -401,7 +401,10 @@ extractChapterOrder(chapterName) {
                 <h4>
                     <i class="fas fa-folder-open"></i> ${chapter.name}
                     <span class="chapter-count">${chapter.topics.length}个考点</span>
-                    <button class="add-topic-button" onclick="paperComposer.openAddTopicModal('${this.currentSubject}/${this.currentQuestionType}/${chapter.name}')">
+                    <span class="rename-chapter-badge" title="重命名章目录" onclick="event.stopPropagation(); paperComposer.openRenameChapterModal('${this.currentSubject}', '${this.currentQuestionType}', '${chapter.name}')">
+                        <i class="fas fa-edit"></i>
+                    </span>
+                    <button class="add-topic-button" onclick="event.stopPropagation(); paperComposer.openAddTopicModal('${this.currentSubject}/${this.currentQuestionType}/${chapter.name}')">
                         <i class="fas fa-plus-circle"></i> 新增考点
                     </button>
                 </h4>
@@ -419,11 +422,14 @@ extractChapterOrder(chapterName) {
                         <i class="fas fa-file-alt"></i>
                         <span class="topic-name" title="${topic.name}">${topic.name}</span>
                         <span class="count-badge" title="共${topic.count}题">共${topic.count}题</span>
+                        <span class="rename-badge" title="重命名考点" onclick="event.stopPropagation(); paperComposer.openRenameTopicModal('${key}')">
+                            <i class="fas fa-edit"></i>
+                        </span>
                         <span class="preview-badge" title="点击查看题目">
                             <i class="fas fa-chevron-down"></i>
                         </span>
                         <span class="add-question-badge" title="新增题目" onclick="event.stopPropagation(); paperComposer.openAddQuestionModal('${key}')">
-                            新建
+                            <i class="fas fa-plus-circle"></i>
                         </span>
                     </div>
                     <div class="topic-controls">
@@ -892,6 +898,232 @@ extractChapterOrder(chapterName) {
         const modal = document.getElementById('add-chapter-modal');
         if (modal) {
             modal.style.display = 'none';
+        }
+    }
+    
+    // 打开重命名考点对话框
+    openRenameTopicModal(topicKey) {
+        console.log('打开重命名考点对话框', topicKey);
+        
+        // 显示对话框
+        const modal = document.getElementById('rename-topic-modal');
+        if (modal) {
+            modal.style.display = 'block';
+        }
+        
+        // 解析topic_key获取原来的考点名称
+        const parts = topicKey.split('/');
+        const oldTopicName = parts[3].replace('.md', '');
+        
+        // 填充输入框为原来的名称
+        const input = document.getElementById('topic-new-name-input');
+        if (input) {
+            input.value = oldTopicName;
+        }
+        
+        // 保存当前考点key
+        this.currentTopicKey = topicKey;
+        
+        // 为取消按钮添加点击事件监听器
+        const cancelButton = document.getElementById('rename-topic-cancel');
+        const self = this; // 保存 this 引用
+        if (cancelButton) {
+            cancelButton.onclick = () => self.closeRenameTopicModal();
+        }
+        
+        // 为确定按钮添加点击事件监听器
+        const confirmButton = document.getElementById('rename-topic-confirm');
+        if (confirmButton) {
+            confirmButton.onclick = () => self.saveRenameTopic();
+        }
+    }
+    
+    // 关闭重命名考点对话框
+    closeRenameTopicModal() {
+        const modal = document.getElementById('rename-topic-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        this.currentTopicKey = null;
+    }
+    
+    // 保存重命名考点
+    async saveRenameTopic() {
+        const self = this; // 保存 this 引用
+        try {
+            // 获取新考点名称
+            const input = document.getElementById('topic-new-name-input');
+            if (!input) {
+                this.showMessage('无法获取考点名称输入框', 'error');
+                return;
+            }
+            
+            const newTopicName = input.value.trim();
+            if (!newTopicName) {
+                this.showMessage('请输入考点名称', 'error');
+                return;
+            }
+            
+            if (!this.currentTopicKey) {
+                this.showMessage('未找到考点信息', 'error');
+                return;
+            }
+            
+            // 解析topic_key获取路径信息
+            const parts = this.currentTopicKey.split('/');
+            if (parts.length < 4) {
+                this.showMessage('无效的考点路径', 'error');
+                return;
+            }
+            
+            const subject = parts[0];
+            const questionType = parts[1];
+            const chapter = parts[2];
+            const oldTopicName = parts[3].replace('.md', '');
+            
+            // 发送请求到后端
+            const response = await fetch('/api/bank/rename-topic', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    topic_key: this.currentTopicKey,
+                    new_name: newTopicName,
+                    subject: subject,
+                    questionType: questionType,
+                    chapter: chapter,
+                    old_name: oldTopicName
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('服务器响应失败');
+            }
+            
+            const result = await response.json();
+            if (result.success) {
+                // 关闭对话框
+                this.closeRenameTopicModal();
+                
+                // 重新加载题库结构
+                await this.loadBankStructure(this.currentSubject);
+                
+                // 显示成功消息
+                this.showMessage('考点重命名成功', 'success');
+            } else {
+                this.showMessage(result.message || '重命名失败', 'error');
+            }
+        } catch (error) {
+            console.error('重命名考点失败:', error);
+            this.showMessage('重命名考点失败: ' + error.message, 'error');
+        }
+    }
+    
+    // 打开重命名章目录对话框
+    openRenameChapterModal(subject, questionType, chapterName) {
+        console.log('打开重命名章目录对话框', subject, questionType, chapterName);
+        
+        // 显示对话框
+        const modal = document.getElementById('rename-chapter-modal');
+        if (modal) {
+            modal.style.display = 'block';
+        }
+        
+        // 填充输入框为原来的名称
+        const input = document.getElementById('chapter-new-name-input');
+        if (input) {
+            input.value = chapterName;
+        }
+        
+        // 保存当前章目录信息
+        this.currentChapterInfo = {
+            subject: subject,
+            questionType: questionType,
+            oldName: chapterName
+        };
+        
+        // 为取消按钮添加点击事件监听器
+        const cancelButton = document.getElementById('rename-chapter-cancel');
+        const self = this; // 保存 this 引用
+        if (cancelButton) {
+            cancelButton.onclick = () => self.closeRenameChapterModal();
+        }
+        
+        // 为确定按钮添加点击事件监听器
+        const confirmButton = document.getElementById('rename-chapter-confirm');
+        if (confirmButton) {
+            confirmButton.onclick = () => self.saveRenameChapter();
+        }
+    }
+    
+    // 关闭重命名章目录对话框
+    closeRenameChapterModal() {
+        const modal = document.getElementById('rename-chapter-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        this.currentChapterInfo = null;
+    }
+    
+    // 保存重命名章目录
+    async saveRenameChapter() {
+        const self = this; // 保存 this 引用
+        try {
+            // 获取新章目录名称
+            const input = document.getElementById('chapter-new-name-input');
+            if (!input) {
+                this.showMessage('无法获取章目录名称输入框', 'error');
+                return;
+            }
+            
+            const newChapterName = input.value.trim();
+            if (!newChapterName) {
+                this.showMessage('请输入章目录名称', 'error');
+                return;
+            }
+            
+            if (!this.currentChapterInfo) {
+                this.showMessage('未找到章目录信息', 'error');
+                return;
+            }
+            
+            const { subject, questionType, oldName } = this.currentChapterInfo;
+            
+            // 发送请求到后端
+            const response = await fetch('/api/bank/rename-chapter', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    subject: subject,
+                    questionType: questionType,
+                    old_name: oldName,
+                    new_name: newChapterName
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('服务器响应失败');
+            }
+            
+            const result = await response.json();
+            if (result.success) {
+                // 关闭对话框
+                this.closeRenameChapterModal();
+                
+                // 重新加载题库结构
+                await this.loadBankStructure(this.currentSubject);
+                
+                // 显示成功消息
+                this.showMessage('章目录重命名成功', 'success');
+            } else {
+                this.showMessage(result.message || '重命名失败', 'error');
+            }
+        } catch (error) {
+            console.error('重命名章目录失败:', error);
+            this.showMessage('重命名章目录失败: ' + error.message, 'error');
         }
     }
     
