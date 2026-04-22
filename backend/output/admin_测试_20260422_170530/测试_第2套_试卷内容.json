@@ -1,0 +1,269 @@
+{
+  "paper_info": {
+    "title": "测试",
+    "subject": "高等数学",
+    "total_score": 40,
+    "sections": [
+      {
+        "order": 1,
+        "question_count": 1,
+        "total_score": 10,
+        "type_name": "判断题"
+      },
+      {
+        "order": 2,
+        "question_count": 2,
+        "total_score": 20,
+        "type_name": "选择题"
+      },
+      {
+        "order": 3,
+        "question_count": 1,
+        "total_score": 10,
+        "type_name": "填空题"
+      },
+      {
+        "order": 4,
+        "question_count": 4,
+        "total_score": 0,
+        "type_name": "计算题"
+      },
+      {
+        "order": 5,
+        "question_count": 1,
+        "total_score": 0,
+        "type_name": "解答题"
+      },
+      {
+        "order": 6,
+        "question_count": 1,
+        "total_score": 0,
+        "type_name": "应用题"
+      },
+      {
+        "order": 7,
+        "question_count": 1,
+        "total_score": 0,
+        "type_name": "证明题"
+      }
+    ],
+    "selections": {
+      "高等数学/判断题/第1章 函数与极限/函数概念": {
+        "chapter": "第1章 函数与极限",
+        "count": 1,
+        "score": 10,
+        "topic": "函数概念"
+      },
+      "高等数学/填空题/第1章 函数与极限/极限计算": {
+        "chapter": "第1章 函数与极限",
+        "count": 1,
+        "score": 10,
+        "topic": "极限计算"
+      },
+      "高等数学/应用题/第5章 定积分及其应用/5.5 定积分几何应用之体积和面积": {
+        "chapter": "第5章 定积分及其应用",
+        "count": 1,
+        "score": 0,
+        "topic": "5.5 定积分几何应用之体积和面积"
+      },
+      "高等数学/解答题/第3章 导数的应用/3.4 单调性，凹凸性与拐点": {
+        "chapter": "第3章 导数的应用",
+        "count": 1,
+        "score": 0,
+        "topic": "3.4 单调性，凹凸性与拐点"
+      },
+      "高等数学/计算题/第1章 函数与极限/极限计算": {
+        "chapter": "第1章 函数与极限",
+        "count": 1,
+        "score": 0,
+        "topic": "极限计算"
+      },
+      "高等数学/计算题/第4章 不定积分/1.1 直接积分": {
+        "chapter": "第4章 不定积分",
+        "count": 1,
+        "score": 0,
+        "topic": "1.1 直接积分"
+      },
+      "高等数学/计算题/第5章 定积分及其应用/5.3 定积分计算之换元积分": {
+        "chapter": "第5章 定积分及其应用",
+        "count": 1,
+        "score": 0,
+        "topic": "5.3 定积分计算之换元积分"
+      },
+      "高等数学/计算题/第5章 定积分及其应用/5.4 定积分计算之分部积分": {
+        "chapter": "第5章 定积分及其应用",
+        "count": 1,
+        "score": 0,
+        "topic": "5.4 定积分计算之分部积分"
+      },
+      "高等数学/证明题/第3章 导数的应用/3.4 不等式的证明": {
+        "chapter": "第3章 导数的应用",
+        "count": 1,
+        "score": 0,
+        "topic": "3.4 不等式的证明"
+      },
+      "高等数学/选择题/第1章 函数与极限/1.6 无穷小的比较": {
+        "chapter": "第1章 函数与极限",
+        "count": 1,
+        "score": 10,
+        "topic": "1.6 无穷小的比较"
+      },
+      "高等数学/选择题/第1章 函数与极限/函数概念": {
+        "chapter": "第1章 函数与极限",
+        "count": 1,
+        "score": 10,
+        "topic": "函数概念"
+      }
+    },
+    "paper_count": 2,
+    "user_id": "admin"
+  },
+  "questions": [
+    {
+      "type_name": "判断题",
+      "questions": [
+        {
+          "content": "【判断题题目】",
+          "answer": "待补充",
+          "analysis": "待补充",
+          "difficulty": "中等"
+        }
+      ]
+    },
+    {
+      "type_name": "选择题",
+      "questions": [
+        {
+          "content": "$\\int{\\cos 3xdx}=$ ( ).",
+          "options": [
+            "A. $\\sin 3x$ B. $\\sin 3x+C$ C. $\\cos 3x+C$ D. $\\frac{1}{3}\\sin 3x+C$"
+          ],
+          "answer": "D",
+          "analysis": "很easy的问题",
+          "difficulty": "中等",
+          "score": 1,
+          "id": "q1",
+          "source_file": "/home/zhao/project/auto-paper-system/backend/question_bank/admin/高等数学/选择题/第1章 函数与极限/1.6 无穷小的比较.md"
+        },
+        {
+          "content": "函数 $f(x) = \\sqrt{4-x^2}$ 的定义域是",
+          "options": [
+            "A. $[-2, 2]$ B. $(-2, 2)$ C. $(-\\infty, -2] \\cup [2, +\\infty)$ D. $(-2, +\\infty)$"
+          ],
+          "answer": "A",
+          "analysis": "要使函数有意义，需满足 $4-x^2 \\geq 0$，解得 $-2 \\leq x \\leq 2$。",
+          "difficulty": "中等",
+          "score": 1,
+          "id": "q1",
+          "source_file": "/home/zhao/project/auto-paper-system/backend/question_bank/admin/高等数学/选择题/第1章 函数与极限/函数概念.md"
+        }
+      ]
+    },
+    {
+      "type_name": "填空题",
+      "questions": [
+        {
+          "content": "$\\lim_{x \\to 0} \\frac{\\sin 3x}{x} =$ ______.",
+          "options": [],
+          "answer": "3",
+          "analysis": "利用重要极限 $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$，原式 $= 3 \\times 1 = 3$。",
+          "difficulty": "中等",
+          "score": 2.0,
+          "id": "q1",
+          "source_file": "/home/zhao/project/auto-paper-system/backend/question_bank/admin/高等数学/填空题/第1章 函数与极限/极限计算.md"
+        }
+      ]
+    },
+    {
+      "type_name": "计算题",
+      "questions": [
+        {
+          "content": "计算极限：$\\lim_{x \\to 0} \\frac{\\tan x - \\sin x}{x^3}$",
+          "options": [],
+          "answer": "$\\frac{1}{2}$",
+          "analysis": "$$\n\\begin{aligned}  \n\\lim_{x \\to 0} \\frac{\\tan x - \\sin x}{x^3}  \n&= \\lim_{x \\to 0} \\frac{\\sin x (1 - \\cos x)}{x^3 \\cos x} \\\\  \n&= \\lim_{x \\to 0} \\frac{x \\cdot \\frac{1}{2}x^2}{x^3} = \\frac{1}{2}  \n\\end{aligned}  \n$$",
+          "difficulty": "中等",
+          "score": 1,
+          "id": "q1",
+          "source_file": "/home/zhao/project/auto-paper-system/backend/question_bank/admin/高等数学/计算题/第1章 函数与极限/极限计算.md"
+        },
+        {
+          "content": "计算 $\\int{\\sqrt{x}\\left( {{x}^{2}}-\\frac{1}{x} \\right)}dx$.",
+          "options": [],
+          "answer": "",
+          "analysis": "$\\int{\\sqrt{x}\\left( {{x}^{2}}-\\frac{1}{x} \\right)}dx=\\int{\\left( {{x}^{\\frac{5}{2}}}-{{x}^{-\\frac{1}{2}}} \\right)}dx=\\frac{2}{7}{{x}^{\\frac{7}{2}}}-2\\sqrt{x}+C$.",
+          "difficulty": "中等",
+          "score": 1,
+          "id": "q1",
+          "source_file": "/home/zhao/project/auto-paper-system/backend/question_bank/admin/高等数学/计算题/第4章 不定积分/1.1 直接积分.md"
+        },
+        {
+          "content": "计算 $\\int_{0}^{4}{\\frac{1}{\\sqrt{2x+1}}}dx$.",
+          "options": [],
+          "answer": "",
+          "analysis": "$\\int_{0}^{4}{\\frac{1}{\\sqrt{2x+1}}}dx=\\frac{1}{2}\\int_{0}^{4}{\\frac{1}{\\sqrt{2x+1}}}d\\left( 2x+1 \\right)=\\left. \\sqrt{2x+1} \\right|_{0}^{4}=2$.",
+          "difficulty": "中等",
+          "score": 1,
+          "id": "q2",
+          "source_file": "/home/zhao/project/auto-paper-system/backend/question_bank/admin/高等数学/计算题/第5章 定积分及其应用/5.3 定积分计算之换元积分.md"
+        },
+        {
+          "content": "计算 $\\int_{0}^{\\frac{\\pi }{2}}{x\\cos xdx}$.",
+          "options": [],
+          "answer": "",
+          "analysis": "原式$=\\left. x\\sin x \\right|_{0}^{\\frac{\\pi }{2}}-\\int_{0}^{\\frac{\\pi }{2}}{\\sin xdx=\\frac{\\pi }{2}}+\\left. \\cos x \\right|_{0}^{\\frac{\\pi }{2}}=\\frac{\\pi }{2}-1$.",
+          "difficulty": "中等",
+          "score": 1,
+          "id": "q1",
+          "source_file": "/home/zhao/project/auto-paper-system/backend/question_bank/admin/高等数学/计算题/第5章 定积分及其应用/5.4 定积分计算之分部积分.md"
+        }
+      ]
+    },
+    {
+      "type_name": "解答题",
+      "questions": [
+        {
+          "content": "利用二阶导数讨论曲线$y={{x}^{3}}+3{{x}^{2}}-2$的凹凸性和拐点.",
+          "options": [],
+          "answer": "",
+          "analysis": "$y$在$\\left( -\\infty ,+\\infty  \\right)$上连续，${y}'=3{{x}^{2}}+6x$，${y}''=6x+6$；   （1分）\n令${y}''=0$，得$x=-1$；   （1分）    \n  列表:\n\n| $x$ | $(-\\infty, -1)$ | $(-1, +\\infty)$ |\n|:--:|:--:|:--:|\n| $y''$ | - | + |\n| $y$ | 凸 | 凹 | \n\n    拐点(-1,0). (2分)",
+          "difficulty": "中等",
+          "score": 1,
+          "id": "q1",
+          "source_file": "/home/zhao/project/auto-paper-system/backend/question_bank/admin/高等数学/解答题/第3章 导数的应用/3.4 单调性，凹凸性与拐点.md"
+        }
+      ]
+    },
+    {
+      "type_name": "应用题",
+      "questions": [
+        {
+          "content": "求由曲线$y={{x}^{2}}(x\\ge 0)$和直线$x+y=2$及$x$轴所围成的平面图形的面积，\n并求该图形绕$x$轴旋转一周所得旋转体的体积． ![面积图](images/面积.jpg)",
+          "options": [],
+          "answer": "",
+          "analysis": "由$$\\left\\{ \\begin{array}{*{35}{l}}    y={{x}^{2}}  \\\\    x+y=2  \\\\ \\end{array}} \\right.$$ 得交点(-2,4)（舍）和(1,1),     （2分） 所以面积_A_=$\\int_{0}^{1}{{{x}^{2}}dx}+\\int_{1}^{2}{\\left( -x+2 \\right)dx}=\\left. \\frac{{{x}^{3}}}{3} \\right|_{0}^{1}+\\left. \\left( -\\frac{{{x}^{2}}}{2}+2x \\right) \\right|_{1}^{2}=\\frac{5}{6}$    （3分） 体积_V_=$\\int_{0}^{1}{\\pi {{\\left( {{x}^{2}} \\right)}^{2}}dx}+\\int_{1}^{2}{\\pi {{\\left( -x+2 \\right)}^{2}}dx}=\\left. \\frac{\\pi }{5}{{x}^{5}} \\right|_{0}^{1}+\\left. \\pi \\left( \\frac{{{x}^{3}}}{3}-2{{x}^{2}}+4x \\right) \\right|_{1}^{2}=\\frac{8}{15}\\pi$  （3分）",
+          "difficulty": "中等",
+          "score": 1,
+          "id": "q2",
+          "source_file": "/home/zhao/project/auto-paper-system/backend/question_bank/admin/高等数学/应用题/第5章 定积分及其应用/5.5 定积分几何应用之体积和面积.md"
+        }
+      ]
+    },
+    {
+      "type_name": "证明题",
+      "questions": [
+        {
+          "content": "证明：当$x>1$时，$2\\sqrt{x}>3-\\frac{1}{x}$.",
+          "options": [],
+          "answer": "",
+          "analysis": "令$f\\left( x \\right)=2\\sqrt{x}-\\left( 3-\\frac{1}{x} \\right)$，则${f}'\\left( x \\right)=\\frac{1}{{{x}^{2}}}\\left( x\\sqrt{x}-1 \\right)$.   （2分）\n$x>1$,${f}'\\left( x \\right)>0$,所以$f(x)$在$[1,+\\infty )$上单调增加，     （2分）\n因此$x>1$时，$f\\left( x \\right)>f\\left( 1 \\right)=0$ ，即当$x>1$时，$2\\sqrt{x}>3-\\frac{1}{x}$  （1分）",
+          "difficulty": "中等",
+          "score": 1,
+          "id": "q1",
+          "source_file": "/home/zhao/project/auto-paper-system/backend/question_bank/admin/高等数学/证明题/第3章 导数的应用/3.4 不等式的证明.md"
+        }
+      ]
+    }
+  ],
+  "seed": 3055910353
+}

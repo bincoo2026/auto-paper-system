@@ -694,15 +694,19 @@ extractChapterOrder(chapterName) {
             }
             
             // 构建题干内容，对于选择题需要添加选项
-            let stemContent = question.content;
+            let stemContent = (question.content || '').replace(/\n/g, '<br>');
             if (questionType === '选择题' && question.options && question.options.length > 0) {
                 stemContent += '<br>' + question.options.join('<br>');
             }
             
             // 填充编辑器内容
+            // 对于题干，直接设置内容（选择题会添加选项）
             editors.stemEditor.commands.setContent(stemContent);
-            editors.answerEditor.commands.setContent(this.escapeHtml(question.answer || ''));
-            editors.analysisEditor.commands.setContent(this.escapeHtml(question.analysis || ''));
+            // 对于答案和解析，将换行符转换为br标签，与题干处理方式一致
+            const answerWithBreaks = (question.answer || '').replace(/\n/g, '<br>');
+            const analysisWithBreaks = (question.analysis || '').replace(/\n/g, '<br>');
+            editors.answerEditor.commands.setContent(answerWithBreaks);
+            editors.analysisEditor.commands.setContent(analysisWithBreaks);
             
             // 显示对话框
             const modal = document.getElementById('question-edit-modal');
