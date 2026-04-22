@@ -365,17 +365,6 @@ extractChapterOrder(chapterName) {
        let typeData = subjectData[this.currentQuestionType] || [];
            typeData = this.sortChapters(typeData);
         
-        if (typeData.length === 0) {
-            treeContainer.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-folder-open"></i>
-                    <p>暂无${this.currentQuestionType}题库</p>
-                    <p class="empty-hint">该科目暂无${this.currentQuestionType}的题目</p>
-                </div>
-            `;
-            return;
-        }
-        
         let html = `
             <div class="current-type-indicator">
                 <i class="fas fa-filter"></i>
@@ -394,6 +383,18 @@ extractChapterOrder(chapterName) {
                     </span>` : ''}
             </div>
         `;
+        
+        if (typeData.length === 0) {
+            html += `
+                <div class="empty-state">
+                    <i class="fas fa-folder-open"></i>
+                    <p>暂无${this.currentQuestionType}题库</p>
+                    <p class="empty-hint">该科目暂无${this.currentQuestionType}的题目</p>
+                </div>
+            `;
+            treeContainer.innerHTML = html;
+            return;
+        }
         
         typeData.forEach(chapter => {
             html += `<div class="chapter-section">
