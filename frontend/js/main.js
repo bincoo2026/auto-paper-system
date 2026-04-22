@@ -631,9 +631,9 @@ extractChapterOrder(chapterName) {
             const analysisContent = editors.analysisEditor.getHTML();
             
             // 转换为纯文本，保留 $ 定界符
-            let stemText = this.htmlToPlainText(stemContent);
-            const answerText = this.htmlToPlainText(answerContent);
-            const analysisText = this.htmlToPlainText(analysisContent);
+            let stemText = this.htmlToPlainText(stemContent).trim();
+            const answerText = this.htmlToPlainText(answerContent).trim();
+            const analysisText = this.htmlToPlainText(analysisContent).trim();
             
             // 构建完整的题目文本
             let exportText = stemText;
@@ -662,6 +662,16 @@ extractChapterOrder(chapterName) {
         const brElements = temp.querySelectorAll('br');
         brElements.forEach(br => {
             br.replaceWith('\n');
+        });
+        // 处理 p 标签为换行符
+        const pElements = temp.querySelectorAll('p');
+        pElements.forEach((p, index) => {
+            const text = p.textContent || p.innerText || '';
+            if (text) {
+                p.replaceWith(text + '\n');
+            } else {
+                p.replaceWith('\n');
+            }
         });
         return temp.textContent || temp.innerText || '';
     }
