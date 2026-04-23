@@ -696,6 +696,93 @@ extractChapterOrder(chapterName) {
         return temp.textContent || temp.innerText || '';
     }
     
+    // 解析并插入内容，支持数学公式
+    insertParsedContent(editor, content) {
+        if (!editor || !content) return;
+        
+        // 清空编辑器
+        editor.commands.setContent('');
+        
+        // 先处理块级公式 $$...$$
+        let remainingContent = content;
+        
+        // 正则表达式匹配块级公式和行内公式
+        // 注意：先匹配块级公式，因为它更长
+        const blockFormulaRegex = /\$\$([^\$]+)\$\$/g;
+        const inlineFormulaRegex = /\$([^\$]+)\$/g;
+        
+        // 先分割内容，识别块级公式和普通文本
+        let parts = [];
+        let lastIndex = 0;
+        let match;
+        
+        // 匹配块级公式
+        while ((match = blockFormulaRegex.exec(content)) !== null) {
+            if (match.index > lastIndex) {
+                // 添加普通文本部分
+                parts.push({
+                    type: 'text',
+                    content: content.substring(lastIndex, match.index)
+                });
+            }
+            // 添加块级公式
+            parts.push({
+                type: 'blockFormula',
+                content: match[1]
+            });
+            lastIndex = match.index + match[0].length;
+        }
+        
+        // 添加剩余的普通文本
+        if (lastIndex < content.length) {
+            parts.push({
+                type: 'text',
+                content: content.substring(lastIndex)
+            });
+        }
+        
+        // 对每个部分进行处理，在普通文本中查找行内公式
+        parts.forEach(part => {
+            if (part.type === 'blockFormula') {
+                // 插入块级公式
+                editor.commands.insertContent({
+                    type: 'inlineMath',
+                    attrs: {
+                        latex: part.content,
+                        display: 'yes'
+                    }
+                });
+            } else if (part.type === 'text') {
+                // 处理普通文本中的行内公式
+                let textContent = part.content;
+                let textLastIndex = 0;
+                let inlineMatch;
+                
+                // 匹配行内公式
+                while ((inlineMatch = inlineFormulaRegex.exec(textContent)) !== null) {
+                    if (inlineMatch.index > textLastIndex) {
+                        // 插入普通文本
+                        editor.commands.insertContent(textContent.substring(textLastIndex, inlineMatch.index));
+                    }
+                    // 插入行内公式
+                    editor.commands.insertContent({
+                        type: 'inlineMath',
+                        attrs: {
+                            latex: inlineMatch[1],
+                            display: 'no'
+                        }
+                    });
+                    textLastIndex = inlineMatch.index + inlineMatch[0].length;
+                }
+                
+                // 插入剩余的普通文本
+                if (textLastIndex < textContent.length) {
+                    editor.commands.insertContent(textContent.substring(textLastIndex));
+                }
+            }
+        });
+    }
+
     // 打开编辑对话框
     async openEditModal(questionIndex, question, questionType) {
         try {
@@ -721,12 +808,12 @@ extractChapterOrder(chapterName) {
             
             // 填充编辑器内容
             // 对于题干，直接设置内容（选择题会添加选项）
-            editors.stemEditor.commands.setContent(stemContent);
+            this.insertParsedContent(editors.stemEditor, stemContent);
             // 对于答案和解析，将换行符转换为br标签，与题干处理方式一致
             const answerWithBreaks = (question.answer || '').replace(/\n/g, '<br>');
             const analysisWithBreaks = (question.analysis || '').replace(/\n/g, '<br>');
-            editors.answerEditor.commands.setContent(answerWithBreaks);
-            editors.analysisEditor.commands.setContent(analysisWithBreaks);
+            this.insertParsedContent(editors.answerEditor, answerWithBreaks);
+            this.insertParsedContent(editors.analysisEditor, analysisWithBreaks);
             
             // 显示对话框
             const modal = document.getElementById('question-edit-modal');
