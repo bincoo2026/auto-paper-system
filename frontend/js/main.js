@@ -661,6 +661,23 @@ extractChapterOrder(chapterName) {
     htmlToPlainText(html) {
         const temp = document.createElement('div');
         temp.innerHTML = html;
+
+        // 处理数学公式标签（@aarkue/tiptap-math-extension扩展生成）
+        const mathElements = temp.querySelectorAll('span[data-type="inlineMath"]');
+        mathElements.forEach(span => {
+            const latex = span.getAttribute('data-latex') || '';
+            const display = span.getAttribute('data-display') || 'no';
+
+            // 根据data-display属性判断是块级还是行内公式
+            if (display === 'yes') {
+                // 块级公式使用$$...$$
+                span.replaceWith('$$' + latex + '$$');
+            } else {
+                // 行内公式使用$...$
+                span.replaceWith('$' + latex + '$');
+            }
+        });
+
         // 处理 br 标签为换行符
         const brElements = temp.querySelectorAll('br');
         brElements.forEach(br => {
