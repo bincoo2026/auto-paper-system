@@ -404,8 +404,8 @@ extractChapterOrder(chapterName) {
                     <span class="rename-chapter-badge" title="重命名章目录" onclick="event.stopPropagation(); paperComposer.openRenameChapterModal('${this.currentSubject}', '${this.currentQuestionType}', '${chapter.name}')">
                         <i class="fas fa-edit"></i>
                     </span>
-                    <button class="add-topic-button" onclick="event.stopPropagation(); paperComposer.openAddTopicModal('${this.currentSubject}/${this.currentQuestionType}/${chapter.name}')">
-                        <i class="fas fa-plus-circle"></i> 新增考点
+                    <button class="add-topic-button" onclick="event.stopPropagation(); paperComposer.openAddTopicModal('${this.currentSubject}/${this.currentQuestionType}/${chapter.name}')" title="新增考点">
+                        <i class="fas fa-plus-circle"></i>
                     </button>
                 </h4>
                 <div class="topics-list" style="display: block;">`;
@@ -1698,8 +1698,12 @@ extractChapterOrder(chapterName) {
         html += `<div class="question-item" data-qidx="${index}">
             <span class="question-number">${index + 1}.</span>
             <div class="question-content">${this.escapeHtml(questionContent)}</div>
-            <button class="edit-button" data-question-index="${index}" data-question-type="${questionType}">编辑</button>
-            <button class="delete-button" data-question-index="${index}" data-question-type="${questionType}">删除</button>
+            <button class="edit-button" data-question-index="${index}" data-question-type="${questionType}" title="编辑题目">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="delete-button" data-question-index="${index}" data-question-type="${questionType}" title="删除题目">
+                <i class="fas fa-trash-alt"></i>
+            </button>
         </div>`;
     });
     

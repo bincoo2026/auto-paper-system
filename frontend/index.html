@@ -93,30 +93,52 @@
       }
       .edit-button {
         position: absolute;
+        right: 50px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+        color: #3b82f6;
+        border: 1px solid #cbd5e1;
+        border-radius: 20px;
+        padding: 4px 8px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .edit-button:hover {
+        background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+        transform: translateY(-60%);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .delete-button {
+        position: absolute;
         right: 10px;
         top: 50%;
         transform: translateY(-50%);
-        background-color: #3b82f6;
-        color: white;
-        border: none;
-        border-radius: 4px;
+        background: linear-gradient(135deg, #fef2f2, #fee2e2);
+        color: #dc2626;
+        border: 1px solid #fecaca;
+        border-radius: 20px;
         padding: 4px 8px;
         font-size: 12px;
         cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
-      .delete-button {
-        background-color: #dc3545;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 4px 8px;
-        font-size: 12px;
-        cursor: pointer;
-        margin-left: 3px;
-      }
-      
+
       .delete-button:hover {
-        background-color: #c82333;
+        background: linear-gradient(135deg, #fee2e2, #fecaca);
+        transform: translateY(-60%);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       }
       #question-answer-editor {
         min-height: 30px;
@@ -230,19 +252,27 @@
       
       .add-topic-button {
         margin-left: 10px;
-        padding: 4px 12px;
-        background-color: #28a745;
-        color: white;
-        border: none;
-        border-radius: 4px;
+        background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+        color: #059669;
+        padding: 0.25rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        flex-shrink: 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         cursor: pointer;
-        font-size: 12px;
-        transition: background-color 0.3s;
+        transition: all 0.3s ease;
+        border: 1px solid #bbf7d0;
         vertical-align: middle;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
-      
+
       .add-topic-button:hover {
-        background-color: #218838;
+        background: linear-gradient(135deg, #a7f3d0, #6ee7b7);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       }
       
       /* 新增考点对话框样式 */
