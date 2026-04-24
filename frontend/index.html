@@ -9,12 +9,10 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📝</text></svg>">
     <!-- KaTeX CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-    <!-- KaTeX JS 核心库 - 使用更简单的引入方式 -->
+    <!-- KaTeX JS 核心库 -->
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <!-- KaTeX auto-render 扩展 -->
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-
-    <!-- tiptap 样式 - 移除未使用的mention扩展样式 -->
 
     <!-- Tiptap ESM 依赖 -->
     <script type="importmap">
@@ -109,13 +107,11 @@
         align-items: center;
         justify-content: center;
       }
-
       .edit-button:hover {
         background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
         transform: translateY(-60%);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       }
-
       .delete-button {
         position: absolute;
         right: 10px;
@@ -134,7 +130,6 @@
         align-items: center;
         justify-content: center;
       }
-
       .delete-button:hover {
         background: linear-gradient(135deg, #fee2e2, #fecaca);
         transform: translateY(-60%);
@@ -143,7 +138,6 @@
       #question-answer-editor {
         min-height: 30px;
       }
-      
       .add-question-badge {
         margin-left: 10px;
         background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
@@ -162,13 +156,11 @@
         align-items: center;
         justify-content: center;
       }
-      
       .add-question-badge:hover {
         background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
         transform: translateY(-1px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       }
-      
       .rename-badge {
         margin-left: 10px;
         background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
@@ -187,14 +179,11 @@
         align-items: center;
         justify-content: center;
       }
-      
       .rename-badge:hover {
         background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
         transform: translateY(-1px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       }
-
-      /* 删除考点按钮 */
       .delete-topic-badge {
         margin-left: 5px;
         background: linear-gradient(135deg, #fef2f2, #fee2e2);
@@ -212,13 +201,11 @@
         display: flex;
         align-items: center;
       }
-
       .delete-topic-badge:hover {
         background: linear-gradient(135deg, #fee2e2, #fecaca);
         transform: translateY(-1px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       }
-
       .rename-chapter-badge {
         margin-left: 10px;
         background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
@@ -237,19 +224,16 @@
         align-items: center;
         justify-content: center;
       }
-      
       .rename-chapter-badge:hover {
         background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
         transform: translateY(-1px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       }
-      
       .rename-chapter-badge i {
         font-size: 0.9rem;
         transition: transform 0.3s ease;
         margin: 0;
       }
-      
       .add-topic-button {
         margin-left: 10px;
         background: linear-gradient(135deg, #d1fae5, #a7f3d0);
@@ -268,14 +252,11 @@
         align-items: center;
         justify-content: center;
       }
-
       .add-topic-button:hover {
         background: linear-gradient(135deg, #a7f3d0, #6ee7b7);
         transform: translateY(-1px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       }
-      
-      /* 新增考点对话框样式 */
       .add-topic-modal {
         display: none;
         position: fixed;
@@ -287,7 +268,6 @@
         overflow: auto;
         background-color: rgba(0,0,0,0.4);
       }
-      
       .add-topic-modal-content {
         background-color: #fefefe;
         margin: 15% auto;
@@ -297,16 +277,13 @@
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       }
-      
       .add-topic-modal-header {
         margin-bottom: 20px;
         text-align: center;
       }
-      
       .add-topic-modal-body {
         margin-bottom: 20px;
       }
-      
       .add-topic-modal-body input {
         width: 100%;
         padding: 8px;
@@ -314,11 +291,9 @@
         border-radius: 4px;
         font-size: 14px;
       }
-      
       .add-topic-modal-footer {
         text-align: right;
       }
-      
       .add-topic-modal-footer button {
         margin-left: 10px;
         padding: 8px 16px;
@@ -326,8 +301,6 @@
         border-radius: 4px;
         cursor: pointer;
       }
-      
-      /* 新增目录对话框样式 */
       .add-chapter-modal {
         display: none;
         position: fixed;
@@ -339,7 +312,6 @@
         overflow: auto;
         background-color: rgba(0,0,0,0.4);
       }
-      
       .add-chapter-modal-content {
         background-color: #fefefe;
         margin: 15% auto;
@@ -349,24 +321,19 @@
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       }
-      
       .add-chapter-modal-header {
         margin-bottom: 20px;
         text-align: center;
       }
-      
       .add-chapter-modal-body {
         margin-bottom: 20px;
       }
-
-      /* 确认删除模态框特殊样式 */
       #delete-question-modal .add-chapter-modal-content,
       #delete-topic-modal .add-chapter-modal-content {
         height: auto;
         min-height: 150px;
         max-height: 200px;
       }
-
       #delete-question-modal .add-chapter-modal-body,
       #delete-topic-modal .add-chapter-modal-body {
         margin-bottom: 20px;
@@ -375,13 +342,11 @@
         align-items: center;
         justify-content: center;
       }
-
       #delete-question-modal .add-chapter-modal-body p,
       #delete-topic-modal .add-chapter-modal-body p {
         margin: 0;
         text-align: center;
       }
-      
       .add-chapter-modal-body input {
         width: 100%;
         padding: 8px;
@@ -389,11 +354,9 @@
         border-radius: 4px;
         font-size: 14px;
       }
-      
       .add-chapter-modal-footer {
         text-align: right;
       }
-      
       .add-chapter-modal-footer button {
         margin-left: 10px;
         padding: 8px 16px;
@@ -401,14 +364,11 @@
         border-radius: 4px;
         cursor: pointer;
       }
-      
-      /* 题型操作按钮样式 */
       .type-actions {
         display: flex;
         gap: 8px;
         margin-left: 20px;
       }
-      
       .type-actions .btn {
         font-size: 12px;
         padding: 4px 10px;
@@ -441,20 +401,16 @@
         </header>
 
         <div class="main-content">
-            <!-- 左侧面板 -->
             <div class="left-panel">
-                <!-- 试卷设置 -->
                 <div class="card">
                     <div class="card-header">
                         <h2><i class="fas fa-cog"></i> 试卷设置</h2>
-                       <!-- <div class="card-badge">基础设置</div> -->
                     </div>
                     <div class="card-body">
                         <div class="form-group">
                             <label for="subject-select"><i class="fas fa-book"></i> 选择课程或科目</label>
                             <select id="subject-select" class="form-control">
                                 <option value="">-- 请选择课程或科目 --</option>
-                                <!-- 科目选项由JavaScript动态加载 -->
                             </select>
                         </div>
                         <div class="form-group">
@@ -466,8 +422,6 @@
                             <input type="number" id="paper-count" class="form-control" min="1" max="10" value="1" disabled>
                             <div class="form-hint"> <i class="fas fa-info-circle"></i>如果组2套卷，则代表A/B卷，两卷题目不重复</div>
                         </div>
-
-                       <!-- 试卷设置卡片中的模板选择部分 -->
                         <div class="form-group template-group">
                             <div class="template-header">
                                 <label for="template-select"><i class="fas fa-layer-group"></i> 选择组卷模板（默认无模板组卷）</label>
@@ -477,7 +431,6 @@
                             </div>
                             <select id="template-select" class="form-control">
                                 <option value="">-- 请选择模板 --</option>
-                                <!-- 模板选项由JavaScript动态加载 -->
                             </select>
                             <div class="form-hint">
                                 <i class="fas fa-info-circle"></i>
@@ -487,7 +440,6 @@
                     </div>
                 </div>
 
-                <!-- 试卷结构 -->
                 <div class="card">
                     <div class="card-header">
                         <h2><i class="fas fa-layer-group"></i> 试卷结构</h2>
@@ -510,7 +462,6 @@
                 </div>
             </div>
 
-            <!-- 右侧面板 -->
             <div class="right-panel">
                 <div class="card full-height">
                     <div class="card-header">
@@ -635,136 +586,181 @@
         </div>
     </div>
 
-    <!-- 模板管理模态框 -->
-<div id="template-manage-modal" class="modal">
-    <div class="modal-content modal-lg" style="max-width: 800px;">
-        <div class="modal-header">
-            <h3>模板管理 - <span id="template-manage-subject"></span></h3>
-            <button class="modal-close">&times;</button>
+    <div id="template-manage-modal" class="modal">
+        <div class="modal-content modal-lg" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>模板管理 - <span id="template-manage-subject"></span></h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="template-list-container">
+                    <table class="template-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 70%;">模板名称</th>
+                                <th style="width: 30%;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="template-list"></tbody>
+                    </table>
+                    <div id="template-empty-state" class="empty-state" style="display: none;">
+                        <i class="fas fa-folder-open"></i>
+                        <p>暂无模板</p>
+                        <p class="empty-hint">点击"保存为模板"按钮创建新模板</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="template-manage-close" class="btn btn-primary">关闭</button>
+            </div>
         </div>
-        <div class="modal-body">
-            <div id="template-list-container">
-                <table class="template-table">
+    </div>
+
+    <div id="user-manage-modal" class="modal">
+        <div class="modal-content modal-lg" style="max-width: 900px;">
+            <div class="modal-header">
+                <h3>用户管理</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <table class="user-table">
                     <thead>
                         <tr>
-                            <th style="width: 70%;">模板名称</th>
-                            <th style="width: 30%;">操作</th>
+                            <th style="width: 20%;">用户名</th>
+                            <th style="width: 25%;">用户ID</th>
+                            <th style="width: 15%;">角色</th>
+                            <th style="width: 25%;">创建时间</th>
+                            <th style="width: 15%;">操作</th>
                         </tr>
                     </thead>
-                    <tbody id="template-list">
-                        <!-- 动态加载 -->
-                    </tbody>
+                    <tbody id="user-list"></tbody>
                 </table>
-                <div id="template-empty-state" class="empty-state" style="display: none;">
-                    <i class="fas fa-folder-open"></i>
-                    <p>暂无模板</p>
-                    <p class="empty-hint">点击"保存为模板"按钮创建新模板</p>
+                <div class="add-user-form">
+                    <h4>添加新用户</h4>
+                    <div class="form-row">
+                        <input type="text" id="new-username" placeholder="用户名">
+                        <input type="password" id="new-password" placeholder="密码">
+                        <select id="new-role">
+                            <option value="user">普通用户</option>
+                            <option value="admin">管理员</option>
+                        </select>
+                        <button id="create-user-btn" class="btn btn-primary">创建用户</button>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="modal-footer">
-            <button id="template-manage-close" class="btn btn-primary">关闭</button>
+            <div class="modal-footer">
+                <button id="user-manage-exit" class="btn btn-primary">退出</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- 用户管理模态框 -->
-<div id="user-manage-modal" class="modal">
-    <div class="modal-content modal-lg" style="max-width: 900px;">
-        <div class="modal-header">
-            <h3>用户管理</h3>
-            <button class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-            <table class="user-table">
-                <thead>
-                    <tr>
-                        <th style="width: 20%;">用户名</th>
-                        <th style="width: 25%;">用户ID</th>
-                        <th style="width: 15%;">角色</th>
-                        <th style="width: 25%;">创建时间</th>
-                        <th style="width: 15%;">操作</th>
-                    </tr>
-                </thead>
-                <tbody id="user-list">
-                    <!-- 动态加载 -->
-                </tbody>
-            </table>
-
-            <div class="add-user-form">
-                <h4>添加新用户</h4>
-                <div class="form-row">
-                    <input type="text" id="new-username" placeholder="用户名">
-                    <input type="password" id="new-password" placeholder="密码">
-                    <select id="new-role">
-                        <option value="user">普通用户</option>
-                        <option value="admin">管理员</option>
-                    </select>
-                    <button id="create-user-btn" class="btn btn-primary">创建用户</button>
+    <div id="question-edit-modal" class="modal">
+        <div class="modal-content modal-lg" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h3>编辑题目 - <span id="question-type-display" style="color: #3b82f6; font-weight: normal;">题型</span></h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="editor-section">
+                    <label>题干</label>
+                    <div class="editor-toolbar">
+                        <button data-editor="stem" data-action="undo" title="撤销">↩ 撤销</button>
+                        <button data-editor="stem" data-action="redo" title="重做">↪ 重做</button>
+                        <button data-editor="stem" data-action="image" title="粘贴图片">🖼 粘贴图片</button>
+                    </div>
+                    <div id="question-stem-editor" class="tiptap"></div>
+                </div>
+                <div class="editor-section">
+                    <label>答案</label>
+                    <div class="editor-toolbar">
+                        <button data-editor="answer" data-action="undo" title="撤销">↩ 撤销</button>
+                        <button data-editor="answer" data-action="redo" title="重做">↪ 重做</button>
+                        <button data-editor="answer" data-action="image" title="粘贴图片">🖼 粘贴图片</button>
+                    </div>
+                    <div id="question-answer-editor" class="tiptap"></div>
+                </div>
+                <div class="editor-section">
+                    <label>解析</label>
+                    <div class="editor-toolbar">
+                        <button data-editor="analysis" data-action="undo" title="撤销">↩ 撤销</button>
+                        <button data-editor="analysis" data-action="redo" title="重做">↪ 重做</button>
+                        <button data-editor="analysis" data-action="image" title="粘贴图片">🖼 粘贴图片</button>
+                    </div>
+                    <div id="question-analysis-editor" class="tiptap"></div>
+                </div>
+                <div class="export-section">
+                    <label>导出数据（纯文本，保留 $ 定界符）</label>
+                    <div id="export-data" class="export-data"></div>
                 </div>
             </div>
-        </div>
-        <div class="modal-footer">
-            <button id="user-manage-exit" class="btn btn-primary">退出</button>
+            <div class="modal-footer">
+                <button id="edit-modal-close" class="btn btn-secondary">关闭</button>
+                <button id="edit-modal-save" class="btn btn-primary">保存</button>
+            </div>
         </div>
     </div>
-</div>
-
-<!-- 题目编辑模态框 -->
-<div id="question-edit-modal" class="modal">
-    <div class="modal-content modal-lg" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
-        <div class="modal-header">
-            <h3>编辑题目 - <span id="question-type-display" style="color: #3b82f6; font-weight: normal;">题型</span></h3>
-            <button class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-            <!-- 题干编辑器 -->
-            <div class="editor-section">
-                <label>题干</label>
-                <div class="editor-toolbar">
-                    <button data-editor="stem" data-action="undo" title="撤销">↩ 撤销</button>
-                    <button data-editor="stem" data-action="redo" title="重做">↪ 重做</button>
-                    <button data-editor="stem" data-action="image" title="粘贴图片">🖼 粘贴图片</button>
-                </div>
-                <div id="question-stem-editor" class="tiptap"></div>
-            </div>
-
-            <!-- 答案编辑器 -->
-            <div class="editor-section">
-                <label>答案</label>
-                <div class="editor-toolbar">
-                    <button data-editor="answer" data-action="undo" title="撤销">↩ 撤销</button>
-                    <button data-editor="answer" data-action="redo" title="重做">↪ 重做</button>
-                    <button data-editor="answer" data-action="image" title="粘贴图片">🖼 粘贴图片</button>
-                </div>
-                <div id="question-answer-editor" class="tiptap"></div>
-            </div>
-
-            <!-- 解析编辑器 -->
-            <div class="editor-section">
-                <label>解析</label>
-                <div class="editor-toolbar">
-                    <button data-editor="analysis" data-action="undo" title="撤销">↩ 撤销</button>
-                    <button data-editor="analysis" data-action="redo" title="重做">↪ 重做</button>
-                    <button data-editor="analysis" data-action="image" title="粘贴图片">🖼 粘贴图片</button>
-                </div>
-                <div id="question-analysis-editor" class="tiptap"></div>
-            </div>
-
-            <!-- 导出数据区域 -->
-            <div class="export-section">
-                <label>导出数据（纯文本，保留 $ 定界符）</label>
-                <div id="export-data" class="export-data"></div>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button id="edit-modal-close" class="btn btn-secondary">关闭</button>
-            <button id="edit-modal-save" class="btn btn-primary">保存</button>
-        </div>
-    </div>
-</div>
 
     <script src="js/main.js"></script>
+
+    <!-- ========== 🔑 粘贴处理函数（提取到外部，确保只定义一次） ========== -->
+    <script>
+      function convertBracketDelimiters(text) {
+        // 先转换块级：\[...\] → $$...$$
+        text = text.replace(/\\\[([\s\S]+?)\\\]/g, (_, latex) => '$$' + latex.trim() + '$$');
+        // 再转换行内：\(...\) → $...$
+        text = text.replace(/\\\(([\s\S]+?)\\\)/g, (_, latex) => '$' + latex.trim() + '$');
+        return text;
+      }
+
+      // 在 convertBracketDelimiters 所在的 <script> 标签中，紧接着添加：
+
+function insertParsedContent(editor, text) {
+  if (!editor) return;
+
+  // 先转换 \(...\) 和 \[...\] 为 $...$ 和 $$...$$
+  text = convertBracketDelimiters(text);
+
+  // 正则匹配 $$...$$ 和 $...$
+  const regex = /(\$\$[^$]+\$\$|\$[^$]+\$)/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    const beforeText = text.slice(lastIndex, match.index);
+    if (beforeText) {
+      insertTextWithParagraphs(editor, beforeText);
+    }
+
+    const formula = match[0];
+    const isBlock = formula.startsWith('$$');
+    const latex = formula.slice(isBlock ? 2 : 1, isBlock ? -2 : -1).trim();
+
+    editor.commands.insertContent({
+      type: 'inlineMath',
+      attrs: { latex, ...(isBlock && { display: 'yes' }) }
+    });
+
+    lastIndex = match.index + formula.length;
+  }
+
+  const remaining = text.slice(lastIndex);
+  if (remaining) {
+    insertTextWithParagraphs(editor, remaining);
+  }
+}
+
+function insertTextWithParagraphs(editor, text) {
+  const paragraphs = text.split(/\n\n+/);
+  paragraphs.forEach((para, index) => {
+    if (para.trim()) {
+      editor.commands.insertContent(`<p>${para}</p>`);
+    } else if (index < paragraphs.length - 1) {
+      editor.commands.insertContent('<p></p>');
+    }
+  });
+}
+
+    </script>
 
     <!-- 编辑器懒加载脚本 -->
     <script>
@@ -777,6 +773,39 @@
         loading: false
       };
 
+      // 粘贴监听器绑定标志（确保只绑定一次）
+      let pasteListenersBound = false;
+
+      function bindPasteListeners(editors) {
+        if (pasteListenersBound) return;
+        pasteListenersBound = true;
+
+        [editors.stemEditor, editors.answerEditor, editors.analysisEditor].forEach(editor => {
+          if (!editor) return;
+
+          // 🔑 关键：使用捕获阶段（capture），在 Tiptap 之前拦截
+          editor.view.dom.addEventListener('paste', function(event) {
+            // 获取粘贴的纯文本
+            const pastedText = event.clipboardData?.getData('text/plain');
+            if (!pastedText) return;
+
+            const converted = convertBracketDelimiters(pastedText);
+
+            // 如果没有变化，不做任何处理
+            if (converted === pastedText) return;
+
+            // 🔑 关键：阻止一切默认行为和冒泡
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+
+            // 使用 setTimeout 确保在事件循环结束后插入
+            setTimeout(() => {
+                insertParsedContent(editor, converted);
+            }, 0);
+          }, true); // 🔑 关键：useCapture = true，在捕获阶段拦截
+        });
+      }
       // 懒加载编辑器
       window.loadEditors = async function() {
         if (window.editorInstances.initialized) {
@@ -797,13 +826,12 @@
         window.editorInstances.loading = true;
 
         try {
-          // 动态加载 ESM 模块
+          // 动态加载 ESM 模块（不添加任何粘贴处理）
           const module = await import('data:text/javascript,' + encodeURIComponent(`
             import { Editor } from '@tiptap/core';
             import StarterKit from '@tiptap/starter-kit';
             import { MathExtension } from '@aarkue/tiptap-math-extension';
 
-            // 通用的编辑器创建函数
             function createEditor(elementId) {
               const element = document.getElementById(elementId);
               if (!element) return null;
@@ -827,12 +855,10 @@
               });
             }
 
-            // 初始化三个编辑器
             const stemEditor = createEditor('question-stem-editor');
             const answerEditor = createEditor('question-answer-editor');
             const analysisEditor = createEditor('question-analysis-editor');
 
-            // 工具栏按钮逻辑
             document.querySelectorAll('.editor-toolbar button').forEach(btn => {
               btn.addEventListener('click', () => {
                 const editorId = btn.dataset.editor;
@@ -849,7 +875,6 @@
 
                 if (!editor) return;
 
-                // 处理不同的操作
                 if (action === 'undo') {
                   editor.commands.undo();
                 } else if (action === 'redo') {
@@ -871,7 +896,11 @@
           window.editorInstances.answerEditor = module.answerEditor;
           window.editorInstances.analysisEditor = module.analysisEditor;
           window.editorInstances.initialized = true;
-          console.log('🎉 Tiptap 编辑器初始化完成，已集成数学公式扩展');
+
+          // 🔑 绑定粘贴处理（只会执行一次）
+          bindPasteListeners(window.editorInstances);
+
+          console.log('🎉 Tiptap 编辑器初始化完成，已集成粘贴转换功能');
         } catch (error) {
           console.error('❌ 编辑器初始化失败:', error);
         } finally {
@@ -881,7 +910,7 @@
         return window.editorInstances;
       };
     </script>
-    
+
     <!-- 新增考点对话框 -->
     <div id="add-topic-modal" class="add-topic-modal">
         <div class="add-topic-modal-content">
@@ -897,7 +926,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- 新增目录对话框 -->
     <div id="add-chapter-modal" class="add-chapter-modal">
         <div class="add-chapter-modal-content">
@@ -913,7 +942,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- 重命名考点对话框 -->
     <div id="rename-topic-modal" class="add-chapter-modal">
         <div class="add-chapter-modal-content">
@@ -929,7 +958,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- 重命名章目录对话框 -->
     <div id="rename-chapter-modal" class="add-chapter-modal">
         <div class="add-chapter-modal-content">
@@ -945,7 +974,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- 删除题目确认对话框 -->
     <div id="delete-question-modal" class="add-chapter-modal">
         <div class="add-chapter-modal-content">
