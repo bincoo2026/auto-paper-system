@@ -404,9 +404,6 @@ extractChapterOrder(chapterName) {
                     <span class="rename-chapter-badge" title="重命名章目录" onclick="event.stopPropagation(); paperComposer.openRenameChapterModal('${this.currentSubject}', '${this.currentQuestionType}', '${chapter.name}')">
                         <i class="fas fa-edit"></i>
                     </span>
-                    <span class="delete-chapter-badge" title="删除章目录" onclick="event.stopPropagation(); paperComposer.openDeleteChapterModal('${this.currentSubject}', '${this.currentQuestionType}', '${chapter.name}')">
-                        <i class="fas fa-trash-alt"></i>
-                    </span>
                     <button class="add-topic-button" onclick="event.stopPropagation(); paperComposer.openAddTopicModal('${this.currentSubject}/${this.currentQuestionType}/${chapter.name}')" title="新增考点">
                         <i class="fas fa-plus-circle"></i>
                     </button>
@@ -1273,92 +1270,6 @@ extractChapterOrder(chapterName) {
             modal.style.display = 'none';
         }
         this.currentChapterInfo = null;
-    }
-    
-    // 打开删除章目录对话框
-    openDeleteChapterModal(subject, questionType, chapterName) {
-        console.log('打开删除章目录对话框', subject, questionType, chapterName);
-        
-        // 保存当前章目录信息
-        this.currentChapterInfo = {
-            subject: subject,
-            questionType: questionType,
-            chapterName: chapterName
-        };
-        
-        // 显示对话框
-        const modal = document.getElementById('delete-chapter-modal');
-        if (modal) {
-            modal.style.display = 'flex';
-        }
-        
-        // 为取消按钮添加点击事件监听器
-        const cancelButton = document.getElementById('delete-chapter-cancel');
-        const self = this; // 保存 this 引用
-        if (cancelButton) {
-            cancelButton.onclick = () => self.closeDeleteChapterModal();
-        }
-        
-        // 为确认按钮添加点击事件监听器
-        const confirmButton = document.getElementById('delete-chapter-confirm');
-        if (confirmButton) {
-            confirmButton.onclick = () => self.saveDeleteChapter();
-        }
-    }
-    
-    // 关闭删除章目录对话框
-    closeDeleteChapterModal() {
-        const modal = document.getElementById('delete-chapter-modal');
-        if (modal) {
-            modal.style.display = 'none';
-        }
-        this.currentChapterInfo = null;
-    }
-    
-    // 保存删除章目录
-    async saveDeleteChapter() {
-        const self = this;
-        try {
-            if (!this.currentChapterInfo) {
-                this.showMessage('未找到章目录信息', 'error');
-                return;
-            }
-
-            const { subject, questionType, chapterName } = this.currentChapterInfo;
-
-            // 发送请求到后端
-            const response = await fetch('/api/bank/delete-chapter', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    subject: subject,
-                    questionType: questionType,
-                    chapterName: chapterName
-                })
-            });
-
-            if (!response.ok) {
-                const error = await response.json().catch(() => ({}));
-                throw new Error(error.message || '删除章目录失败');
-            }
-
-            const result = await response.json();
-            if (result.success) {
-                // 关闭对话框
-                this.closeDeleteChapterModal();
-                // 重新加载题库结构
-                await this.loadBankStructure(this.currentSubject);
-                // 显示成功消息
-                this.showMessage('章目录删除成功', 'success');
-            } else {
-                throw new Error(result.message || '删除章目录失败');
-            }
-        } catch (error) {
-            console.error('删除章目录失败:', error);
-            this.showMessage('删除章目录失败: ' + error.message, 'error');
-        }
     }
     
     // 保存重命名章目录

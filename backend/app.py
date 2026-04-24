@@ -791,6 +791,45 @@ def rename_chapter():
         print(f"重命名章目录失败: {e}")
         return jsonify({'success': False, 'message': '重命名章目录失败: {}'.format(str(e))}), 500
 
+@app.route('/api/bank/delete-chapter', methods=['POST'])
+@login_required
+def delete_chapter():
+    """删除章目录"""
+    try:
+        data = request.get_json()
+        subject = data.get('subject')
+        questionType = data.get('questionType')
+        chapterName = data.get('chapterName')
+        
+        if not subject or not questionType or not chapterName:
+            return jsonify({'success': False, 'message': '科目、题型和章目录名称不能为空'}), 400
+        
+        # 获取用户目录
+        user_id = session.get('user_id')
+        user_dir = Config.get_user_dir(user_id)
+        
+        # 构建章目录路径
+        chapter_path = user_dir / subject / questionType / chapterName
+        
+        if not chapter_path.exists():
+            return jsonify({'success': False, 'message': '章目录不存在'}), 404
+        
+        # 删除章目录及其所有内容
+        try:
+            import shutil
+            shutil.rmtree(chapter_path)
+            print(f"删除章目录: {chapter_path}")
+            # 清除缓存
+            from question_parser import QuestionParser
+            QuestionParser.clear_cache()
+            return jsonify({'success': True, 'message': '章目录删除成功'})
+        except Exception as e:
+            print(f"删除章目录失败: {e}")
+            return jsonify({'success': False, 'message': '删除章目录失败: {}'.format(str(e))}), 500
+    except Exception as e:
+        print(f"删除章目录失败: {e}")
+        return jsonify({'success': False, 'message': '删除章目录失败: {}'.format(str(e))}), 500
+
 @app.route('/api/bank/delete-question', methods=['POST'])
 @login_required
 def delete_question():
