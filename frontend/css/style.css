@@ -1269,6 +1269,13 @@ footer::before {
     max-width: 500px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
     animation: slideUp 0.4s ease;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-content .modal-body {
+    flex: 1;
 }
 
 @keyframes slideUp {
