@@ -400,7 +400,7 @@ extractChapterOrder(chapterName) {
             html += `<div class="chapter-section">
                 <h4>
                     <i class="fas fa-folder-open"></i> ${chapter.name}
-                    <span class="chapter-count">${chapter.topics.length}个考点</span>
+                    <span class="chapter-count">（共${chapter.topics.length}个考点）</span>
                     <span class="rename-chapter-badge" title="重命名章目录" onclick="event.stopPropagation(); paperComposer.openRenameChapterModal('${this.currentSubject}', '${this.currentQuestionType}', '${chapter.name}')">
                         <i class="fas fa-edit"></i>
                     </span>
@@ -424,18 +424,17 @@ extractChapterOrder(chapterName) {
                     <div class="topic-info">
                         <i class="fas fa-file-alt"></i>
                         <span class="topic-name" title="${topic.name}">${topic.name}</span>
-                        <span class="count-badge" title="共${topic.count}题">共${topic.count}题</span>
                         <span class="rename-badge" title="重命名考点" onclick="event.stopPropagation(); paperComposer.openRenameTopicModal('${key}')">
                             <i class="fas fa-edit"></i>
                         </span>
                         <span class="delete-topic-badge" title="删除考点" onclick="event.stopPropagation(); paperComposer.openDeleteTopicModal('${key}')">
                             <i class="fas fa-trash-alt"></i>
                         </span>
-                        <span class="preview-badge" title="点击查看题目">
-                            <i class="fas fa-chevron-down"></i>
-                        </span>
                         <span class="add-question-badge" title="新增题目" onclick="event.stopPropagation(); paperComposer.openAddQuestionModal('${key}')">
                             <i class="fas fa-plus-circle"></i>
+                        </span>
+                        <span class="preview-badge" title="点击查看题目">
+                            <i class="fas fa-chevron-down"></i>
                         </span>
                     </div>
                     <div class="topic-controls">
@@ -449,6 +448,7 @@ extractChapterOrder(chapterName) {
                                    placeholder="0"
                                    title="选题数量 (0-${topic.count})"
                                    ${topic.count === 0 ? 'disabled' : ''}></div>
+                        <span class="count-badge" title="共${topic.count}题">/${topic.count}</span>
                         <div class="input-group">
                             <label class="input-label">赋分</label>
                             <input type="number"

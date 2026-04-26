@@ -814,14 +814,22 @@ header::after {
 }
 
 .count-badge {
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
-    padding: 0.25rem 0.7rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
+    background: none;
+    color: #475569;
+    padding: 0 0.2rem;
+    font-size: 0.85rem;
     font-weight: 600;
     flex-shrink: 0;
-    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    align-self: center;
+}
+
+/* 调整topic-controls中count-badge的位置 */
+.topic-controls {
+    align-items: center;
+}
+
+.topic-controls .count-badge {
+    margin: 0 0.2rem 0 0.1rem;
 }
 
 .preview-badge {
