@@ -1870,16 +1870,16 @@ footer::before {
     padding: 0.3rem 0.8rem;
     font-size: 0.8rem;
     border-radius: 6px;
-    background: linear-gradient(135deg, #64748b, #475569);
-    color: white;
-    border: none;
+    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+    color: #475569;
+    border: 1px solid #cbd5e1;
     transition: all 0.3s ease;
 }
 
 .subject-manage-btn:hover {
-    background: linear-gradient(135deg, #475569, #334155);
+    background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .subject-manage-btn i {
