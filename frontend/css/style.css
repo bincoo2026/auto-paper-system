@@ -1851,6 +1851,126 @@ footer::before {
     font-size: 0.75rem;
 }
 
+/* 科目选择区域标题样式 */
+.subject-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.subject-header label {
+    margin-bottom: 0;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* 科目管理按钮样式 */
+.subject-manage-btn {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #64748b, #475569);
+    color: white;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.subject-manage-btn:hover {
+    background: linear-gradient(135deg, #475569, #334155);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.subject-manage-btn i {
+    margin-right: 4px;
+    font-size: 0.75rem;
+}
+
+/* 科目管理模态框样式 */
+#subject-manage-modal .modal-content {
+    max-width: 600px;
+    width: 90%;
+}
+
+#subject-manage-modal .modal-body {
+    padding: 20px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* 科目管理表格样式 */
+.subject-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.subject-table th,
+.subject-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.subject-table th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #475569;
+}
+
+.subject-table tr:hover {
+    background: #f8fafc;
+}
+
+.subject-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* 新增科目表单样式 */
+.add-subject-form {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.add-subject-form input {
+    flex: 1;
+}
+
+/* 科目操作按钮样式 */
+.btn-delete-subject {
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-delete-subject:hover {
+    background: #dc2626;
+}
+
+.btn-rename-subject {
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-rename-subject:hover {
+    background: #2563eb;
+}
+
 /* 模板管理模态框样式优化 */
 #template-manage-modal .modal-content {
     max-width: 600px;

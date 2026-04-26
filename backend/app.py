@@ -488,6 +488,115 @@ def get_subjects():
     subjects.sort(reverse=True)
     return jsonify({'subjects': subjects})
 
+@app.route('/api/bank/add-subject', methods=['POST'])
+@login_required
+def add_subject():
+    """新增科目"""
+    try:
+        data = request.get_json()
+        subject_name = data.get('subject')
+
+        if not subject_name:
+            return jsonify({'success': False, 'message': '科目名称不能为空'}), 400
+
+        # 获取用户目录
+        user_id = session.get('user_id')
+        user_dir = Config.get_user_dir(user_id)
+
+        # 构建科目路径
+        subject_path = user_dir / subject_name
+        if subject_path.exists():
+            return jsonify({'success': False, 'message': '该科目已存在'}), 400
+
+        # 创建科目目录
+        try:
+            subject_path.mkdir(parents=True, exist_ok=True)
+            print(f"创建新科目: {subject_path}")
+            return jsonify({'success': True, 'message': '科目创建成功'})
+        except Exception as e:
+            print(f"创建科目失败: {e}")
+            return jsonify({'success': False, 'message': '创建科目失败: {}'.format(str(e))}), 500
+    except Exception as e:
+        print(f"新增科目失败: {e}")
+        return jsonify({'success': False, 'message': '新增科目失败: {}'.format(str(e))}), 500
+
+@app.route('/api/bank/delete-subject', methods=['POST'])
+@login_required
+def delete_subject():
+    """删除科目"""
+    try:
+        data = request.get_json()
+        subject_name = data.get('subject')
+
+        if not subject_name:
+            return jsonify({'success': False, 'message': '科目名称不能为空'}), 400
+
+        # 获取用户目录
+        user_id = session.get('user_id')
+        user_dir = Config.get_user_dir(user_id)
+
+        # 构建科目路径
+        subject_path = user_dir / subject_name
+        if not subject_path.exists():
+            return jsonify({'success': False, 'message': '该科目不存在'}), 404
+
+        # 删除科目目录及其所有内容
+        try:
+            import shutil
+            shutil.rmtree(subject_path)
+            print(f"删除科目: {subject_path}")
+            # 清除缓存
+            from question_parser import QuestionParser
+            QuestionParser.clear_cache()
+            return jsonify({'success': True, 'message': '科目删除成功'})
+        except Exception as e:
+            print(f"删除科目失败: {e}")
+            return jsonify({'success': False, 'message': '删除科目失败: {}'.format(str(e))}), 500
+    except Exception as e:
+        print(f"删除科目失败: {e}")
+        return jsonify({'success': False, 'message': '删除科目失败: {}'.format(str(e))}), 500
+
+@app.route('/api/bank/rename-subject', methods=['POST'])
+@login_required
+def rename_subject():
+    """重命名科目"""
+    try:
+        data = request.get_json()
+        old_name = data.get('old_name')
+        new_name = data.get('new_name')
+
+        if not old_name or not new_name:
+            return jsonify({'success': False, 'message': '旧名称和新名称不能为空'}), 400
+
+        # 获取用户目录
+        user_id = session.get('user_id')
+        user_dir = Config.get_user_dir(user_id)
+
+        # 构建目录路径
+        old_path = user_dir / old_name
+        new_path = user_dir / new_name
+
+        if not old_path.exists():
+            return jsonify({'success': False, 'message': '该科目不存在'}), 404
+
+        if new_path.exists():
+            return jsonify({'success': False, 'message': '新名称已存在'}), 400
+
+        # 重命名目录
+        try:
+            old_path.rename(new_path)
+            print(f"重命名科目: {old_path} -> {new_path}")
+            # 清除缓存
+            from question_parser import QuestionParser
+            QuestionParser.clear_cache()
+            return jsonify({'success': True, 'message': '科目重命名成功'})
+        except Exception as e:
+            print(f"重命名科目失败: {e}")
+            return jsonify({'success': False, 'message': '重命名科目失败: {}'.format(str(e))}), 500
+    except Exception as e:
+        print(f"重命名科目失败: {e}")
+        return jsonify({'success': False, 'message': '重命名科目失败: {}'.format(str(e))}), 500
+
 @app.route('/api/bank/save-question', methods=['POST'])
 @login_required
 def save_question():

@@ -1421,7 +1421,179 @@ extractChapterOrder(chapterName) {
             this.showMessage('重命名章目录失败: ' + error.message, 'error');
         }
     }
-    
+
+    // 打开科目管理对话框
+    async showSubjectManageModal() {
+        const modal = document.getElementById('subject-manage-modal');
+        const subjectList = document.getElementById('subject-list');
+        const emptyState = document.getElementById('subject-empty-state');
+
+        subjectList.innerHTML = '';
+
+        // 获取科目列表
+        try {
+            const response = await fetch('/api/subjects', {
+                credentials: 'include'
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            const subjects = data.subjects || [];
+
+            if (subjects.length === 0) {
+                subjectList.style.display = 'none';
+                emptyState.style.display = 'block';
+            } else {
+                subjectList.style.display = 'table-row-group';
+                emptyState.style.display = 'none';
+
+                subjects.forEach(subject => {
+                    const tr = document.createElement('tr');
+
+                    const nameTd = document.createElement('td');
+                    nameTd.className = 'subject-name';
+                    nameTd.textContent = subject;
+
+                    const actionsTd = document.createElement('td');
+                    actionsTd.className = 'subject-actions';
+
+                    const renameBtn = document.createElement('button');
+                    renameBtn.className = 'btn btn-rename-subject';
+                    renameBtn.innerHTML = '<i class="fas fa-edit"></i> 重命名';
+                    renameBtn.onclick = function(e) {
+                        if (e) e.stopPropagation();
+                        window.paperComposer.openRenameSubjectModal(subject);
+                        return false;
+                    };
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn btn-delete-subject';
+                    deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i> 删除';
+                    deleteBtn.onclick = function(e) {
+                        if (e) e.stopPropagation();
+                        window.paperComposer.confirmDeleteSubject(subject);
+                        return false;
+                    };
+
+                    actionsTd.appendChild(renameBtn);
+                    actionsTd.appendChild(deleteBtn);
+
+                    tr.appendChild(nameTd);
+                    tr.appendChild(actionsTd);
+                    subjectList.appendChild(tr);
+                });
+            }
+        } catch (error) {
+            console.error('加载科目列表失败:', error);
+            this.showMessage('加载科目列表失败', 'error');
+        }
+
+        modal.classList.add('show');
+    }
+
+    // 新增科目
+    async addSubject() {
+        const input = document.getElementById('new-subject-name');
+        const subjectName = input.value.trim();
+
+        if (!subjectName) {
+            this.showMessage('请输入科目名称', 'warning');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/bank/add-subject', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ subject: subjectName })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                this.showMessage('科目创建成功', 'success');
+                input.value = '';
+                await this.loadSubjects();
+                await this.showSubjectManageModal();
+            } else {
+                this.showMessage(result.message || '创建科目失败', 'error');
+            }
+        } catch (error) {
+            console.error('创建科目失败:', error);
+            this.showMessage('创建科目失败: ' + error.message, 'error');
+        }
+    }
+
+    // 确认删除科目
+    confirmDeleteSubject(subjectName) {
+        if (confirm(`确定要删除科目"${subjectName}"吗？此操作将删除该科目下的所有题型、考点和题目，且无法恢复。`)) {
+            this.deleteSubject(subjectName);
+        }
+    }
+
+    // 删除科目
+    async deleteSubject(subjectName) {
+        try {
+            const response = await fetch('/api/bank/delete-subject', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ subject: subjectName })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                this.showMessage('科目删除成功', 'success');
+                await this.loadSubjects();
+                await this.showSubjectManageModal();
+            } else {
+                this.showMessage(result.message || '删除科目失败', 'error');
+            }
+        } catch (error) {
+            console.error('删除科目失败:', error);
+            this.showMessage('删除科目失败: ' + error.message, 'error');
+        }
+    }
+
+    // 打开重命名科目对话框
+    openRenameSubjectModal(oldName) {
+        const newName = prompt(`请输入"${oldName}"的新名称：`, oldName);
+        if (newName && newName.trim() !== oldName) {
+            this.renameSubject(oldName, newName.trim());
+        }
+    }
+
+    // 重命名科目
+    async renameSubject(oldName, newName) {
+        if (!newName) {
+            this.showMessage('请输入新名称', 'warning');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/bank/rename-subject', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ old_name: oldName, new_name: newName })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                this.showMessage('科目重命名成功', 'success');
+                await this.loadSubjects();
+                await this.showSubjectManageModal();
+            } else {
+                this.showMessage(result.message || '重命名科目失败', 'error');
+            }
+        } catch (error) {
+            console.error('重命名科目失败:', error);
+            this.showMessage('重命名科目失败: ' + error.message, 'error');
+        }
+    }
+
     // 打开删除题目确认对话框
     openDeleteQuestionModal(questionIndex, questionType, topicKey) {
         console.log('打开删除题目确认对话框', questionIndex, questionType, topicKey);
@@ -3292,7 +3464,24 @@ extractChapterOrder(chapterName) {
                 this.showTemplateManageModal();
             });
         }
-        
+
+        const manageSubjectsBtn = document.getElementById('manage-subjects-btn');
+        if (manageSubjectsBtn) {
+            manageSubjectsBtn.addEventListener('click', () => {
+                this.showSubjectManageModal();
+            });
+        }
+
+        document.getElementById('add-subject-btn').addEventListener('click', () => {
+            this.addSubject();
+        });
+
+        document.querySelectorAll('#subject-manage-modal .modal-close, #subject-manage-close').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('subject-manage-modal').classList.remove('show');
+            });
+        });
+
         document.getElementById('logout-btn-header').addEventListener('click', async () => {
             try {
                 const response = await fetch('/api/logout', {

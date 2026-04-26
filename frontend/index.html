@@ -408,7 +408,12 @@
                     </div>
                     <div class="card-body">
                         <div class="form-group">
-                            <label for="subject-select"><i class="fas fa-book"></i> 选择课程或科目</label>
+                            <div class="subject-header">
+                                <label for="subject-select"><i class="fas fa-book"></i> 选择课程或科目</label>
+                                <button id="manage-subjects-btn" class="btn btn-small btn-secondary subject-manage-btn" title="新增/管理科目">
+                                    <i class="fas fa-cog"></i> 新增/管理科目
+                                </button>
+                            </div>
                             <select id="subject-select" class="form-control">
                                 <option value="">-- 请选择课程或科目 --</option>
                             </select>
@@ -612,6 +617,40 @@
             </div>
             <div class="modal-footer">
                 <button id="template-manage-close" class="btn btn-primary">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="subject-manage-modal" class="modal">
+        <div class="modal-content modal-lg" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>新增/管理科目</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="subject-list-container">
+                    <table class="subject-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 60%;">科目名称</th>
+                                <th style="width: 40%;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subject-list"></tbody>
+                    </table>
+                    <div id="subject-empty-state" class="empty-state" style="display: none;">
+                        <i class="fas fa-folder-open"></i>
+                        <p>暂无科目</p>
+                        <p class="empty-hint">在下方输入科目名称创建新科目</p>
+                    </div>
+                </div>
+                <div class="add-subject-form">
+                    <input type="text" id="new-subject-name" class="form-control" placeholder="输入新科目名称">
+                    <button id="add-subject-btn" class="btn btn-primary">新增科目</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="subject-manage-close" class="btn btn-primary">关闭</button>
             </div>
         </div>
     </div>
