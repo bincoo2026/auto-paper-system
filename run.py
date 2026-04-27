@@ -47,11 +47,11 @@ def start_server():
         print("\n" + "="*50)
         print("自动组卷系统启动成功!")
         print("="*50)
-        print("\n访问地址: http://localhost:5001")
+        print("\n访问地址: http://localhost:5000")
         print("按 Ctrl+C 停止服务\n")
         print("-"*50)
         
-        app.run(debug=True, host='0.0.0.0', port=5001, use_reloader=False)
+        app.run(debug=True, host='0.0.0.0', port=5000, use_reloader=False)
     except Exception as e:
         print(f"\n✗ 启动失败: {e}")
         print("请检查：")
