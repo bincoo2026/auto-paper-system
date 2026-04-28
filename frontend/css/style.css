@@ -187,23 +187,23 @@ header::after {
     flex: 1;
     padding: 1.5rem;
     gap: 1.5rem;
-    max-width: 1800px;
+    max-width: 1850px;
     margin: 0 auto;
     width: 100%;
 }
 
 .left-panel {
-    flex: 1;
+    flex: 1.15;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    min-width: 350px;
-    max-width: 600px;
+    min-width: 380px;
+    max-width: 650px;
 }
 
 .right-panel {
-    flex: 2;
-    min-width: 600px;
+    flex: 1.85;
+    min-width: 580px;
 }
 
 /* 卡片样式 */
