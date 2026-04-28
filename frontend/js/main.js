@@ -794,7 +794,7 @@ extractChapterOrder(chapterName) {
         const overlay = document.getElementById('editor-loading-overlay');
         const modal = document.getElementById('question-edit-modal');
         if (overlay && modal) {
-            modal.style.display = 'block';
+            modal.style.display = 'flex';
             overlay.style.display = 'flex';
         }
     }
@@ -852,7 +852,7 @@ extractChapterOrder(chapterName) {
             // 显示对话框
             const modal = document.getElementById('question-edit-modal');
             if (modal) {
-                modal.style.display = 'block';
+                modal.style.display = 'flex';
             }
             
             // 更新导出数据
@@ -938,7 +938,7 @@ extractChapterOrder(chapterName) {
             // 显示对话框
             const modal = document.getElementById('question-edit-modal');
             if (modal) {
-                modal.style.display = 'block';
+                modal.style.display = 'flex';
             }
             
             // 更新导出数据
