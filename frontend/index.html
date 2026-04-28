@@ -825,36 +825,34 @@ function insertTextWithParagraphs(editor, text) {
       // 粘贴监听器绑定标志（确保只绑定一次）
       let pasteListenersBound = false;
 
-      function bindPasteListeners(editors) {
+     function bindPasteListeners(editors) {
         if (pasteListenersBound) return;
         pasteListenersBound = true;
 
         [editors.stemEditor, editors.answerEditor, editors.analysisEditor].forEach(editor => {
-          if (!editor) return;
+            if (!editor) return;
 
-          // 🔑 关键：使用捕获阶段（capture），在 Tiptap 之前拦截
-          editor.view.dom.addEventListener('paste', function(event) {
-            // 获取粘贴的纯文本
-            const pastedText = event.clipboardData?.getData('text/plain');
-            if (!pastedText) return;
+            editor.view.dom.addEventListener('paste', function(event) {
+                const pastedText = event.clipboardData?.getData('text/plain');
+                if (!pastedText) return;
 
-            const converted = convertBracketDelimiters(pastedText);
+                // 转换 \(...\) 和 \[...\] 为 $...$ 和 $$...$$
+                const converted = convertBracketDelimiters(pastedText);
 
-            // 如果没有变化，不做任何处理
-            if (converted === pastedText) return;
+                // 🔑 关键：检查转换后的文本是否包含公式定界符
+                const hasFormula = /\$[^$]+\$/.test(converted);
 
-            // 🔑 关键：阻止一切默认行为和冒泡
-            event.preventDefault();
-            event.stopPropagation();
-            event.stopImmediatePropagation();
+                if (!hasFormula) return;  // 没有公式，走默认粘贴
 
-            // 使用 setTimeout 确保在事件循环结束后插入
-            setTimeout(() => {
+                // 有公式，手动处理以确保渲染
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+
                 insertParsedContent(editor, converted);
-            }, 0);
-          }, true); // 🔑 关键：useCapture = true，在捕获阶段拦截
+            }, true);
         });
-      }
+    }
       // 懒加载编辑器
       window.loadEditors = async function() {
         if (window.editorInstances.initialized) {
