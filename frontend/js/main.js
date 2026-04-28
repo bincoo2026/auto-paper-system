@@ -23,6 +23,7 @@ class PaperComposer {
         this.currentQuestionPath = ''; // 当前题目路径
         this.currentQuestionIndex = -1; // 当前题目索引
         this.currentTopicKey = ''; // 当前考点key，用于展开操作
+        this.isFirstEditorLoad = true; // 标记是否是第一次加载编辑器
         
         // 初始化
         this.init();
@@ -789,11 +790,38 @@ extractChapterOrder(chapterName) {
         });
     }
 
+    showEditorLoading() {
+        const overlay = document.getElementById('editor-loading-overlay');
+        const modal = document.getElementById('question-edit-modal');
+        if (overlay && modal) {
+            modal.style.display = 'block';
+            overlay.style.display = 'flex';
+        }
+    }
+
+    hideEditorLoading() {
+        const overlay = document.getElementById('editor-loading-overlay');
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+    }
+
     // 打开编辑对话框
     async openEditModal(questionIndex, question, questionType) {
         try {
+            // 如果是第一次加载编辑器，显示加载提示
+            if (this.isFirstEditorLoad) {
+                this.showEditorLoading();
+            }
+            
             // 懒加载编辑器
             const editors = await window.loadEditors();
+            
+            // 如果是第一次加载，隐藏加载提示
+            if (this.isFirstEditorLoad) {
+                this.hideEditorLoading();
+                this.isFirstEditorLoad = false; // 标记已加载过
+            }
             
             if (!editors || !editors.stemEditor || !editors.answerEditor || !editors.analysisEditor) {
                 this.showMessage('编辑器初始化失败，无法编辑题目', 'error');
@@ -867,6 +895,11 @@ extractChapterOrder(chapterName) {
     async openAddQuestionModal(key) {
         console.log('打开新增题目对话框 - key:', key);
         try {
+            // 如果是第一次加载编辑器，显示加载提示
+            if (this.isFirstEditorLoad) {
+                this.showEditorLoading();
+            }
+            
             // 解析key以获取题目类型
             const parts = key.split('/');
             if (parts.length < 4) {
@@ -879,6 +912,12 @@ extractChapterOrder(chapterName) {
             
             // 懒加载编辑器
             const editors = await window.loadEditors();
+            
+            // 如果是第一次加载，隐藏加载提示
+            if (this.isFirstEditorLoad) {
+                this.hideEditorLoading();
+                this.isFirstEditorLoad = false; // 标记已加载过
+            }
             
             if (!editors || !editors.stemEditor || !editors.answerEditor || !editors.analysisEditor) {
                 this.showMessage('编辑器初始化失败，无法编辑题目', 'error');
