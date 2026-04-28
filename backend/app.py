@@ -1019,7 +1019,8 @@ def delete_question():
         from question_parser import QuestionParser
         QuestionParser.clear_cache()
         
-        return jsonify({'success': True, 'message': '题目删除成功'})
+        # 返回剩余题目数量
+        return jsonify({'success': True, 'message': '题目删除成功', 'remaining_count': len(questions)})
     except Exception as e:
         print(f"删除题目失败: {e}")
         return jsonify({'success': False, 'message': '删除题目失败: {}'.format(str(e))}), 500

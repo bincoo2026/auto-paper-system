@@ -376,6 +376,9 @@ extractChapterOrder(chapterName) {
                     <button class="btn btn-small btn-secondary" onclick="paperComposer.toggleAllChapters()">
                         <i class="fas fa-chevron-up"></i> 收起目录
                     </button>
+                    <button class="btn btn-small btn-secondary" onclick="paperComposer.collapseAllTopics()">
+                        收起考点
+                    </button>
                 </div>
                 ${this.isTemplateApplied ? 
                     `<span class="selection-badge" style="margin-left: auto; background: linear-gradient(135deg, #10b981, #059669);">
@@ -1670,16 +1673,47 @@ extractChapterOrder(chapterName) {
                 // 重新加载题库结构
                 await this.loadBankStructure(this.currentSubject);
                 
-                // 展开被修改的考点的题目列表
-                setTimeout(() => {
-                    const topicItem = document.querySelector(`.topic-item[data-key="${topicKey}"]`);
-                    if (topicItem) {
-                        const topicInfo = topicItem.querySelector('.topic-info');
-                        if (topicInfo) {
-                            topicInfo.click(); // 点击展开考点
+                // 获取剩余题目数量
+                const remainingCount = result.remaining_count || 0;
+                
+                // 如果剩余题目数量为0，清除选题和赋分数字
+                if (remainingCount === 0) {
+                    setTimeout(() => {
+                        const topicItem = document.querySelector(`.topic-item[data-key="${topicKey}"]`);
+                        if (topicItem) {
+                            const countInput = topicItem.querySelector('.count-input');
+                            const scoreInput = topicItem.querySelector('.score-input');
+                            
+                            // 清除选题数字
+                            if (countInput && parseInt(countInput.value) > 0) {
+                                countInput.value = 0;
+                            }
+                            // 清除赋分数字
+                            if (scoreInput && parseFloat(scoreInput.value) > 0) {
+                                scoreInput.value = 0;
+                            }
+                            
+                            // 更新选题状态
+                            this.updateSelection(topicKey, 0, 0);
                         }
-                    }
-                }, 500);
+                        
+                        // 刷新试卷结构（仪表盘）
+                        this.renderPaperStructure();
+                        // 刷新章节分布
+                        this.renderChapterStats();
+                    }, 500);
+                } else {
+                    // 展开被修改的考点的题目列表
+                    setTimeout(() => {
+                        const topicItem = document.querySelector(`.topic-item[data-key="${topicKey}"]`);
+                        if (topicItem) {
+                            const topicInfo = topicItem.querySelector('.topic-info');
+                            if (topicInfo) {
+                                topicInfo.click(); // 点击展开考点
+                            }
+                        }
+                    }, 500);
+                }
                 
                 // 显示成功消息
                 this.showMessage('题目删除成功', 'success');
@@ -1797,6 +1831,23 @@ extractChapterOrder(chapterName) {
             }
             button.innerHTML = '<i class="fas fa-chevron-up"></i> 收起目录';
         }
+    }
+    
+    // 收起所有考点题目列表
+    collapseAllTopics() {
+        // 找到所有展开的考点题目列表
+        const topicQuestions = document.querySelectorAll('.topic-questions');
+        const previewBadges = document.querySelectorAll('.preview-badge');
+        
+        topicQuestions.forEach((questions, index) => {
+            if (questions.style.display === 'block') {
+                questions.style.display = 'none';
+                // 更新对应的预览图标
+                if (previewBadges[index]) {
+                    previewBadges[index].innerHTML = '<i class="fas fa-chevron-down"></i>';
+                }
+            }
+        });
     }
     
     // 保存新考点
