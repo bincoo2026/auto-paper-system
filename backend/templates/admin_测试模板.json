@@ -1,14 +1,14 @@
 {
-  "name": "1",
+  "name": "测试模板",
   "title": "",
   "subject": "高等数学",
-  "created_at": "2026-03-13",
-  "total_score": 40,
+  "created_at": "2026-04-30",
+  "total_score": 100,
   "sections": [
     {
       "type_name": "判断题",
       "order": 1,
-      "question_count": 1,
+      "question_count": 2,
       "total_score": 10
     },
     {
@@ -20,40 +20,46 @@
     {
       "type_name": "填空题",
       "order": 3,
-      "question_count": 1,
-      "total_score": 10
+      "question_count": 2,
+      "total_score": 20
     },
     {
       "type_name": "计算题",
       "order": 4,
-      "question_count": 4,
-      "total_score": 0
+      "question_count": 2,
+      "total_score": 20
     },
     {
       "type_name": "解答题",
       "order": 5,
       "question_count": 1,
-      "total_score": 0
+      "total_score": 10
     },
     {
       "type_name": "应用题",
       "order": 6,
       "question_count": 1,
-      "total_score": 0
+      "total_score": 10
     },
     {
       "type_name": "证明题",
       "order": 7,
       "question_count": 1,
-      "total_score": 0
+      "total_score": 10
     }
   ],
   "selections": {
-    "高等数学/判断题/第1章 函数与极限/函数概念": {
+    "高等数学/判断题/第1章 函数与极限/函数的连续性与间断点": {
       "count": 1,
-      "score": 10,
+      "score": 5,
       "chapter": "第1章 函数与极限",
-      "topic": "函数概念"
+      "topic": "函数的连续性与间断点"
+    },
+    "高等数学/判断题/第1章 函数与极限/1.1 函数的概念": {
+      "count": 1,
+      "score": 5,
+      "chapter": "第1章 函数与极限",
+      "topic": "1.1 函数的概念"
     },
     "高等数学/选择题/第1章 函数与极限/函数概念": {
       "count": 1,
@@ -68,6 +74,12 @@
       "topic": "1.6 无穷小的比较"
     },
     "高等数学/填空题/第1章 函数与极限/极限计算": {
+      "count": 2,
+      "score": 20,
+      "chapter": "第1章 函数与极限",
+      "topic": "极限计算"
+    },
+    "高等数学/计算题/第1章 函数与极限/极限计算": {
       "count": 1,
       "score": 10,
       "chapter": "第1章 函数与极限",
@@ -75,43 +87,37 @@
     },
     "高等数学/计算题/第4章 不定积分/1.1 直接积分": {
       "count": 1,
-      "score": 0,
+      "score": 10,
       "chapter": "第4章 不定积分",
       "topic": "1.1 直接积分"
     },
     "高等数学/计算题/第5章 定积分及其应用/5.3 定积分计算之换元积分": {
-      "count": 1,
-      "score": 0,
+      "count": 0,
+      "score": 10,
       "chapter": "第5章 定积分及其应用",
       "topic": "5.3 定积分计算之换元积分"
     },
     "高等数学/计算题/第5章 定积分及其应用/5.4 定积分计算之分部积分": {
-      "count": 1,
-      "score": 0,
+      "count": 0,
+      "score": 10,
       "chapter": "第5章 定积分及其应用",
       "topic": "5.4 定积分计算之分部积分"
     },
-    "高等数学/计算题/第1章 函数与极限/极限计算": {
-      "count": 1,
-      "score": 0,
-      "chapter": "第1章 函数与极限",
-      "topic": "极限计算"
-    },
     "高等数学/解答题/第3章 导数的应用/3.4 单调性，凹凸性与拐点": {
       "count": 1,
-      "score": 0,
+      "score": 10,
       "chapter": "第3章 导数的应用",
       "topic": "3.4 单调性，凹凸性与拐点"
     },
     "高等数学/应用题/第5章 定积分及其应用/5.5 定积分几何应用之体积和面积": {
       "count": 1,
-      "score": 0,
+      "score": 10,
       "chapter": "第5章 定积分及其应用",
       "topic": "5.5 定积分几何应用之体积和面积"
     },
     "高等数学/证明题/第3章 导数的应用/3.4 不等式的证明": {
       "count": 1,
-      "score": 0,
+      "score": 10,
       "chapter": "第3章 导数的应用",
       "topic": "3.4 不等式的证明"
     }

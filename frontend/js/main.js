@@ -2685,10 +2685,10 @@ extractChapterOrder(chapterName) {
             // 重新计算章节统计（基于新模板的选题）
             this.calculateChapterStats();
             
-            // 计算总分
-            this.totalScore = Object.values(this.selectedQuestions).reduce(
-                (sum, sel) => sum + (sel.score || 0), 0
-            );
+            // 计算总分 - 从 paperStructure（sections）计算，确保与显示的试卷结构一致
+            this.totalScore = template.sections ? 
+                template.sections.reduce((sum, section) => sum + (section.total_score || 0), 0) :
+                Object.values(this.selectedQuestions).reduce((sum, sel) => sum + (sel.score || 0), 0);
             
             // 设置模板应用状态
             this.isTemplateApplied = true;
